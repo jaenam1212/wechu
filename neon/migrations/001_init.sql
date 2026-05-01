@@ -109,15 +109,20 @@ values ('wechu-demo', 'Wechu 데모 라인', 37.5665, 126.9780, 280),
 on conflict (slug) do nothing;
 
 insert into public.wechu_items (item_key, name, slot, cost) values
-('hat_default', '기본 헤어밴드', 'hat', 0),
-('hat_star', '스타 헤어밴드', 'hat', 180),
-('hat_ribbon', '리본 핀', 'hat', 220),
-('body_default', '기본 교복 세트', 'body', 0),
-('body_idol', '아이돌 스테이지', 'body', 350),
-('body_casual', '캐주얼 룩', 'body', 260),
-('acc_default', '없음', 'acc', 0),
-('acc_mic', '미니 마이크', 'acc', 140),
-('acc_charm', '팬즈 참', 'acc', 160)
+('hat_default', '기본 헤어밴드', 'hat', 1),
+('hat_star', '스타 헤어밴드', 'hat', 1),
+('hat_ribbon', '리본 핀', 'hat', 1),
+('hat_item3', 'Top 아이템 3', 'hat', 1),
+('hat_item5', 'Top 아이템 5', 'hat', 1),
+('body_default', '기본 교복 세트', 'body', 1),
+('body_idol', '아이돌 스테이지', 'body', 1),
+('body_casual', '캐주얼 룩', 'body', 1),
+('body_item4', 'Mid 아이템 4', 'body', 1),
+('acc_default', '없음', 'acc', 1),
+('acc_mic', '미니 마이크', 'acc', 1),
+('acc_charm', '팬즈 참', 'acc', 1),
+('acc_item1', 'Bottom 아이템 1', 'acc', 1),
+('acc_item2', 'Bottom 아이템 2', 'acc', 1)
 on conflict (item_key) do nothing;
 
 insert into public.poll_options (id, label, sort_order) values

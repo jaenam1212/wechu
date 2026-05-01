@@ -1,7 +1,10 @@
 "use client";
 
 import { buyWechuItem, equipWechu } from "@/app/actions/shop";
-import { wechuSpriteUrl } from "@/lib/wechu-sprites";
+import {
+  getWechuOverlayLayers,
+  WECHU_BASE_SPRITE_SRC,
+} from "@/lib/wechu-items";
 import { Shirt } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -14,18 +17,42 @@ type Row = {
   cost: number;
 };
 
-function WechuPreviewSprite({ src }: { src: string }) {
+function WechuPreviewSprite({
+  topSrc,
+  midSrc,
+  bottomSrc,
+}: {
+  topSrc: string | null;
+  midSrc: string | null;
+  bottomSrc: string | null;
+}) {
   const [broken, setBroken] = useState(false);
   return !broken ? (
-    <Image
-      src={src}
-      alt="위츄 캐릭터"
-      width={176}
-      height={176}
-      className="max-h-[10.5rem] w-auto object-contain object-bottom"
-      unoptimized
-      onError={() => setBroken(true)}
-    />
+    <div className="relative h-[10.75rem] w-[10.75rem]">
+      <Image
+        src={WECHU_BASE_SPRITE_SRC}
+        alt="위츄 캐릭터"
+        fill
+        sizes="172px"
+        className="object-contain object-center"
+        onError={() => setBroken(true)}
+      />
+      {topSrc ? (
+        <div className="pointer-events-none absolute left-[63%] top-[18%] h-[2.45rem] w-[2.45rem] -translate-x-1/2 rotate-35">
+          <Image src={topSrc} alt="" fill sizes="39px" className="object-contain" />
+        </div>
+      ) : null}
+      {midSrc ? (
+        <div className="pointer-events-none absolute left-1/2 top-[60%] h-[2.425rem] w-[2.425rem] -translate-x-1/2 -translate-y-1/2">
+          <Image src={midSrc} alt="" fill sizes="39px" className="object-contain" />
+        </div>
+      ) : null}
+      {bottomSrc ? (
+        <div className="pointer-events-none absolute bottom-[16%] left-1/2 h-[2.45rem] w-[2.45rem] -translate-x-1/2">
+          <Image src={bottomSrc} alt="" fill sizes="39px" className="object-contain" />
+        </div>
+      ) : null}
+    </div>
   ) : (
     <>
       <Shirt size={72} strokeWidth={1.25} className="text-violet-600" />
@@ -66,9 +93,9 @@ export default function WechuCustomizer({
   }, [items]);
 
   const titles: Record<string, string> = {
-    hat: "모자 · 헤어",
-    body: "의상 · 코디",
-    acc: "악세서리",
+    hat: "Top (상단)",
+    body: "Mid (중단)",
+    acc: "Bottom (하단)",
   };
 
   const equip = async (slot: Row["slot"], itemKey: string) => {
@@ -97,9 +124,14 @@ export default function WechuCustomizer({
 
   const equipped = avatar;
 
-  const spriteSrc = useMemo(
-    () => wechuSpriteUrl(equipped.hat_key, equipped.body_key),
-    [equipped.hat_key, equipped.body_key],
+  const layers = useMemo(
+    () =>
+      getWechuOverlayLayers(
+        equipped.hat_key,
+        equipped.body_key,
+        equipped.acc_key,
+      ),
+    [equipped.acc_key, equipped.body_key, equipped.hat_key],
   );
 
   return (
@@ -110,19 +142,24 @@ export default function WechuCustomizer({
         </h2>
         <div className="flex gap-6">
           <div className="relative flex h-48 w-44 flex-col items-center justify-center rounded-2xl bg-gradient-to-b from-violet-100 to-pink-100 px-2 pt-3 pb-2">
-            <WechuPreviewSprite key={spriteSrc} src={spriteSrc} />
+            <WechuPreviewSprite
+              key={`${equipped.hat_key}:${equipped.body_key}:${equipped.acc_key}`}
+              topSrc={layers.topSrc}
+              midSrc={layers.midSrc}
+              bottomSrc={layers.bottomSrc}
+            />
           </div>
           <dl className="flex flex-1 flex-col justify-center gap-2 text-sm text-zinc-800">
             <div>
-              <dt className="text-xs text-zinc-500">모자</dt>
+              <dt className="text-xs text-zinc-500">Top</dt>
               <dd>{items.find((i) => i.item_key === equipped.hat_key)?.name}</dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">옷</dt>
+              <dt className="text-xs text-zinc-500">Mid</dt>
               <dd>{items.find((i) => i.item_key === equipped.body_key)?.name}</dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">참</dt>
+              <dt className="text-xs text-zinc-500">Bottom</dt>
               <dd>{items.find((i) => i.item_key === equipped.acc_key)?.name}</dd>
             </div>
           </dl>

@@ -9,7 +9,11 @@ import { useWaitTimer } from "@/components/wait/WaitTimerContext";
 import { fmtClock } from "@/lib/fmt-clock";
 import { getGeoFixedPresets } from "@/config/geo-presets";
 import { getBrowserGeoCoordinates } from "@/lib/geo-client";
-import { Loader2, MapPin, Pause, Sparkles } from "lucide-react";
+import {
+  getWechuOverlayLayers,
+  WECHU_BASE_SPRITE_SRC,
+} from "@/lib/wechu-items";
+import { BarChart3, Loader2, MapPin, Pause, ShoppingBag, Vote } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -42,8 +46,10 @@ async function geoOnce(
 
 export default function HomeRadialClient({
   initialBalance,
+  initialAvatar,
 }: {
   initialBalance: number;
+  initialAvatar: { hat_key: string; body_key: string; acc_key: string };
 }) {
   const {
     run,
@@ -59,6 +65,15 @@ export default function HomeRadialClient({
   const fixedPresets = useMemo(() => getGeoFixedPresets(), []);
   const [fixedPresetIdx, setFixedPresetIdx] = useState(0);
   const fixedOverride = fixedPresets?.[fixedPresetIdx] ?? null;
+  const layers = useMemo(
+    () =>
+      getWechuOverlayLayers(
+        initialAvatar.hat_key,
+        initialAvatar.body_key,
+        initialAvatar.acc_key,
+      ),
+    [initialAvatar.acc_key, initialAvatar.body_key, initialAvatar.hat_key],
+  );
 
   const lapProgress =
     ((elapsedSec % RING_SECONDS) / RING_SECONDS) * CIR;
@@ -125,30 +140,44 @@ export default function HomeRadialClient({
           "linear-gradient(180deg, var(--wechu-sub) 0%, #e3f0fd 42%, var(--wechu-main) 100%)",
       }}
     >
-      <header className="relative z-10 flex px-4 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2">
-        <Link
-          href="/wechu"
-          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-200/50 bg-white/45 shadow-md backdrop-blur-md transition active:scale-95"
-          aria-label="위츄"
-        >
-          <span className="text-xl" aria-hidden>
-            🏬
-          </span>
-        </Link>
-        <div className="flex flex-1 items-start justify-center gap-2 px-3 pt-1">
-          <div className="inline-flex items-center gap-2 rounded-full border border-sky-200/55 bg-[color-mix(in_srgb,var(--wechu-base)_82%,transparent)] px-3 py-1.5 text-sm font-semibold shadow-md backdrop-blur-md">
-            <MapPin className="h-4 w-4 text-sky-800" aria-hidden />
-            <span className="tabular-nums">{balance}</span>
-          </div>
+      <div className="relative z-10 flex justify-center px-3 pt-[calc(env(safe-area-inset-top)+0.5rem)]">
+        <div className="inline-flex items-center gap-2 rounded-full border border-sky-200/55 bg-[color-mix(in_srgb,var(--wechu-base)_82%,transparent)] px-3.5 py-2 text-base font-semibold shadow-md backdrop-blur-md">
+          <MapPin className="h-4 w-4 text-sky-800" aria-hidden />
+          <span className="tabular-nums">{balance}</span>
         </div>
+      </div>
+      <p className="relative z-10 px-8 pt-[calc(env(safe-area-inset-top)+0.625rem)] pb-2 text-center text-sm text-slate-700">
+        {run
+          ? `${run.venueName} · 대기 중`
+          : fixedOverride
+            ? `고정 좌표: ${fixedOverride.label} — 원 탭 시 이 위치로 매칭`
+            : "등록된 장소 근처에서 원을 탭해 GPS로 시작해 주세요."}
+      </p>
+
+      <header className="relative z-10 mt-[50px] flex px-4 pb-2">
+        <div className="flex w-14 flex-col items-center gap-2">
+          <Link
+            href="/wechu"
+            className="flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-200/50 bg-white/45 shadow-md backdrop-blur-md transition active:scale-95"
+            aria-label="위츄"
+          >
+            <ShoppingBag className="h-6 w-6 text-sky-900" aria-hidden strokeWidth={2.2} />
+          </Link>
+          <Link
+            href="/vote"
+            className="flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-200/50 bg-white/45 shadow-md backdrop-blur-md transition active:scale-95"
+            aria-label="투표"
+          >
+            <Vote className="h-6 w-6 text-sky-900" aria-hidden strokeWidth={2.2} />
+          </Link>
+        </div>
+        <div className="flex-1" />
         <Link
           href="/recap"
-          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-200/50 bg-white/45 shadow-md backdrop-blur-md transition active:scale-95"
+          className="flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-200/50 bg-white/45 shadow-md backdrop-blur-md transition active:scale-95"
           aria-label="리캡"
         >
-          <span className="text-xl" aria-hidden>
-            🔎
-          </span>
+          <BarChart3 className="h-6 w-6 text-sky-900" aria-hidden strokeWidth={2.2} />
         </Link>
       </header>
 
@@ -171,15 +200,7 @@ export default function HomeRadialClient({
         </div>
       ) : null}
 
-      <p className="relative z-10 px-8 pb-3 text-center text-sm text-slate-700">
-        {run
-          ? `${run.venueName} · 대기 중`
-          : fixedOverride
-            ? `고정 좌표: ${fixedOverride.label} — 원 탭 시 이 위치로 매칭`
-            : "등록된 장소 근처에서 원을 탭해 GPS로 시작해 주세요."}
-      </p>
-
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-[max(10.5rem,calc(env(safe-area-inset-bottom)+8rem))]">
+      <div className="relative z-10 flex flex-1 -translate-y-2 flex-col items-center justify-center px-6 pb-[max(10.5rem,calc(env(safe-area-inset-bottom)+8rem))]">
         <div className="relative flex flex-col items-center">
           <button
             type="button"
@@ -253,7 +274,7 @@ export default function HomeRadialClient({
             </div>
           </button>
 
-          <div className="mt-5 flex h-14 items-center justify-center">
+          <div className="mt-4 flex h-14 items-center justify-center">
             {run ? (
               <button
                 type="button"
@@ -302,54 +323,41 @@ export default function HomeRadialClient({
         </div>
       ) : null}
 
-      <div className="pointer-events-none absolute bottom-[max(1.5rem,calc(env(safe-area-inset-bottom)+1rem))] left-0 right-0 z-10 flex justify-center px-8">
+      <div className="pointer-events-none absolute bottom-[max(3rem,calc(env(safe-area-inset-bottom)+2rem))] left-0 right-0 z-10 flex justify-center px-8">
         <div className="pointer-events-none flex flex-col items-center gap-3">
-          <div className="flex min-h-[9.75rem] w-[9rem] flex-col justify-end overflow-visible rounded-[2rem] border border-sky-200/55 bg-[color-mix(in_srgb,var(--wechu-base)_58%,transparent)] px-3 pb-2 pt-5 shadow-xl backdrop-blur-md">
-            <div className="flex w-full flex-1 items-end justify-center [min-height:7.5rem]">
-              <Image
-                src={encodeURI("/wechu/기본 위츄.png")}
-                alt=""
-                width={512}
-                height={512}
-                sizes="200px"
-                quality={93}
-                draggable={false}
-                className="h-[7.5rem] w-auto max-w-[8.75rem] object-contain object-bottom drop-shadow-lg [image-rendering:auto]"
-              />
+          <div className="flex min-h-[9.75rem] w-[9rem] flex-col justify-center overflow-visible rounded-[2rem] border border-sky-200/55 bg-[color-mix(in_srgb,var(--wechu-base)_58%,transparent)] px-3 py-3 shadow-xl backdrop-blur-md">
+            <div className="flex w-full flex-1 items-center justify-center [min-height:7.5rem]">
+              <div className="relative h-[7.5rem] w-[7.5rem]">
+                <Image
+                  src={WECHU_BASE_SPRITE_SRC}
+                  alt=""
+                  fill
+                  sizes="120px"
+                  quality={93}
+                  draggable={false}
+                  className="object-contain object-center drop-shadow-lg [image-rendering:auto]"
+                />
+                {layers.topSrc ? (
+                  <div className="pointer-events-none absolute left-[60%] top-[18%] h-[1.8rem] w-[1.8rem] -translate-x-1/2 rotate-45">
+                    <Image src={layers.topSrc} alt="" fill sizes="29px" className="object-contain" />
+                  </div>
+                ) : null}
+                {layers.midSrc ? (
+                  <div className="pointer-events-none absolute left-1/2 top-[64%] h-[1.9rem] w-[1.9rem] -translate-x-1/2 -translate-y-1/2">
+                    <Image src={layers.midSrc} alt="" fill sizes="31px" className="object-contain" />
+                  </div>
+                ) : null}
+                {layers.bottomSrc ? (
+                  <div className="pointer-events-none absolute bottom-[12%] left-1/2 h-[1.9rem] w-[1.9rem] -translate-x-1/2">
+                    <Image src={layers.bottomSrc} alt="" fill sizes="31px" className="object-contain" />
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
-          <Sparkles
-            className="h-8 w-8 drop-shadow-md"
-            aria-hidden
-            style={{ color: "#c49a3dff" }}
-          />
         </div>
       </div>
 
-      <footer className="pointer-events-auto relative z-10 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 text-center text-[11px] font-semibold text-slate-600">
-        <nav className="flex justify-center gap-4">
-          <Link
-            href="/vote"
-            className="underline-offset-4 hover:text-slate-900 hover:underline"
-          >
-            투표
-          </Link>
-          <span aria-hidden>|</span>
-          <Link
-            href="/wechu"
-            className="underline-offset-4 hover:text-slate-900 hover:underline"
-          >
-            위츄
-          </Link>
-          <span aria-hidden>|</span>
-          <Link
-            href="/recap"
-            className="underline-offset-4 hover:text-slate-900 hover:underline"
-          >
-            리캡
-          </Link>
-        </nav>
-      </footer>
     </div>
   );
 }

@@ -61,6 +61,7 @@ export async function buyWechuItem(itemKeyRaw: unknown) {
     await client.query("COMMIT");
     revalidatePath("/wechu");
     revalidatePath("/recap");
+    revalidatePath("/");
     return { ok: true as const };
   } catch (e) {
     console.error(e);
@@ -117,6 +118,7 @@ export async function equipWechu(payload: unknown) {
 
     revalidatePath("/wechu");
     revalidatePath("/recap");
+    revalidatePath("/");
     return { ok: true as const };
   } catch {
     return { ok: false as const, message: "장착에 실패했어요." };
@@ -134,5 +136,48 @@ export async function getWalletBalance(): Promise<number> {
     return Number(row?.balance ?? 0);
   } catch {
     return 0;
+  }
+}
+
+export async function getEquippedWechuAvatar(): Promise<{
+  hat_key: string;
+  body_key: string;
+  acc_key: string;
+}> {
+  try {
+    const uid = await getSessionUserId();
+    if (!uid) {
+      return {
+        hat_key: "hat_default",
+        body_key: "body_default",
+        acc_key: "acc_default",
+      };
+    }
+    const sql = getSql();
+    const [row] = neonRows<{
+      hat_key: string;
+      body_key: string;
+      acc_key: string;
+    }>(
+      await sql`
+        SELECT hat_key, body_key, acc_key
+        FROM wechu_avatar
+        WHERE user_id = ${uid}::uuid
+        LIMIT 1
+      `,
+    );
+    return (
+      row ?? {
+        hat_key: "hat_default",
+        body_key: "body_default",
+        acc_key: "acc_default",
+      }
+    );
+  } catch {
+    return {
+      hat_key: "hat_default",
+      body_key: "body_default",
+      acc_key: "acc_default",
+    };
   }
 }
