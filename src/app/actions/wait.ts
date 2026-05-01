@@ -65,7 +65,11 @@ export async function startWaitSession(form: unknown) {
       return { ok: false as const, message: "등록된 QR 장소가 아니에요." };
     }
 
-    const skipGeo = process.env.SKIP_GEO_VALIDATION === "true";
+    /* 데모 전용 줄: 어디서든 사진 트리거만으로 테스트 (반경 검사 생략) */
+    const demoSlugBypass = venue.slug === "wechu-demo";
+    const skipGeo =
+      demoSlugBypass || process.env.SKIP_GEO_VALIDATION === "true";
+
     if (!skipGeo) {
       const d = distanceMeters({ lat, lng }, { lat: venue.lat, lng: venue.lng });
       if (d > venue.radius_m) {
@@ -76,11 +80,11 @@ export async function startWaitSession(form: unknown) {
       }
     }
 
-    const inserted = neonRows<{ id: string }>(
+    const inserted = neonRows<{ id: string; started_at: string | Date }>(
       await sql`
       INSERT INTO wait_sessions (user_id, venue_slug)
       VALUES (${userId}::uuid, ${venue.slug})
-      RETURNING id
+      RETURNING id, started_at
     `,
     );
 
@@ -89,10 +93,66 @@ export async function startWaitSession(form: unknown) {
       return { ok: false as const, message: "세션 시작에 실패했어요." };
     }
 
-    return { ok: true as const, sessionId: row.id, venueName: venue.name };
+    const startedAtIso = new Date(row.started_at).toISOString();
+
+    return {
+      ok: true as const,
+      sessionId: row.id,
+      venueName: venue.name,
+      startedAtIso,
+    };
   } catch (e) {
     console.error(e);
     return { ok: false as const, message: "세션 시작에 실패했어요." };
+  }
+}
+
+export type ActiveWaitSessionResult =
+  | { active: false }
+  | {
+      active: true;
+      sessionId: string;
+      venueName: string;
+      startedAtIso: string;
+    };
+
+/** 앱/Web 재접속 시 클라 타이머 복구용 */
+export async function getActiveWaitSession(): Promise<ActiveWaitSessionResult> {
+  const userId = await uidOrFail();
+  if (!userId) {
+    return { active: false };
+  }
+
+  try {
+    const sql = getSql();
+    const rows = neonRows<{
+      id: string;
+      started_at: string | Date;
+      venue_name: string;
+    }>(
+      await sql`
+        SELECT ws.id, ws.started_at, v.name AS venue_name
+        FROM wait_sessions ws
+        JOIN venues v ON v.slug = ws.venue_slug
+        WHERE ws.user_id = ${userId}::uuid
+          AND ws.ended_at IS NULL
+        LIMIT 1
+      `,
+    );
+    const r = rows[0];
+    if (!r) {
+      return { active: false };
+    }
+
+    return {
+      active: true,
+      sessionId: r.id,
+      venueName: r.venue_name,
+      startedAtIso: new Date(r.started_at).toISOString(),
+    };
+  } catch (e) {
+    console.error(e);
+    return { active: false };
   }
 }
 

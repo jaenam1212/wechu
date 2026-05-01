@@ -5,6 +5,10 @@ import { Loader2, Timer } from "lucide-react";
 import { useEffect } from "react";
 import { useWaitTimer } from "./WaitTimerContext";
 
+/** safe-area 바로 아래 여백 (아이폰 알림처럼 살짝 띄움) */
+const topInsetClass =
+  "pt-[calc(env(safe-area-inset-top)+0.75rem)]";
+
 export default function GlobalWaitTimerBar() {
   const {
     run,
@@ -21,22 +25,24 @@ export default function GlobalWaitTimerBar() {
     return () => window.clearTimeout(t);
   }, [dismissReward, rewardBanner, run]);
 
+  /** 타이머 아래 보상 줄 (타이머 돌 때 동시 노출 거의 없음 — 겹치면 간격 분리) */
+  const rewardTopWhenRun =
+    "top-[calc(env(safe-area-inset-top)+0.75rem+3.75rem+0.375rem)]";
+
   return (
     <>
       {rewardBanner ? (
         <div
           role="status"
-          className={`app-column-w fixed left-1/2 z-40 flex w-full max-w-none -translate-x-1/2 justify-center ${
-            run
-              ? "top-[calc(env(safe-area-inset-top)+3rem)]"
-              : "border-x border-b border-zinc-200 pt-[env(safe-area-inset-top)] shadow-sm"
+          className={`app-column-w pointer-events-none fixed left-1/2 z-40 flex w-full max-w-none -translate-x-1/2 justify-center px-3 ${
+            run ? rewardTopWhenRun : `${topInsetClass}`
           }`}
         >
-          <p className="w-full border-x border-emerald-200 bg-emerald-50 px-4 py-2.5 text-center text-xs text-emerald-900 md:text-sm">
+          <p className="pointer-events-auto w-full max-w-none rounded-[1.25rem] border border-emerald-200/90 bg-emerald-50/95 px-4 py-3 text-center text-xs shadow-lg shadow-emerald-900/10 backdrop-blur-xl md:text-[13px]">
             {rewardBanner}{" "}
             <button
               type="button"
-              className="text-emerald-800 underline-offset-2 hover:underline"
+              className="font-medium text-emerald-800 underline-offset-2 hover:underline"
               onClick={dismissReward}
             >
               닫기
@@ -46,16 +52,18 @@ export default function GlobalWaitTimerBar() {
       ) : null}
 
       {run ? (
-        <div className="app-column-w fixed left-1/2 top-0 z-40 flex w-full max-w-none -translate-x-1/2 justify-center border-x border-zinc-200 pt-[env(safe-area-inset-top)] shadow-md backdrop-blur-sm">
-          <div className="flex h-12 w-full items-center gap-3 border-b border-zinc-200 bg-white/95 px-4">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-pink-100 text-pink-700">
-              <Timer className="h-4 w-4" aria-hidden />
+        <div
+          className={`app-column-w pointer-events-none fixed left-1/2 z-40 flex w-full max-w-none -translate-x-1/2 justify-center px-3 ${topInsetClass}`}
+        >
+          <div className="pointer-events-auto flex h-[3.5rem] w-full max-w-[min(100%,22rem)] items-center gap-2.5 rounded-[1.375rem] border border-zinc-200/90 bg-white/92 pl-3.5 pr-2 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_1px_0_rgba(255,255,255,0.8)_inset] backdrop-blur-xl">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-pink-100 text-pink-600">
+              <Timer className="h-[1.125rem] w-[1.125rem]" aria-hidden strokeWidth={2} />
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[10px] font-medium uppercase tracking-wide text-zinc-500">
-                대기 중 · {run.venueName}
+            <div className="min-w-0 flex-1 pr-1">
+              <p className="truncate text-[10px] font-medium uppercase tracking-[0.06em] text-zinc-500">
+                {run.venueName}
               </p>
-              <p className="font-mono text-lg font-semibold tabular-nums leading-tight text-pink-700">
+              <p className="font-mono text-[17px] font-semibold tabular-nums leading-[1.2] tracking-tight text-pink-600">
                 {fmtClock(elapsedSec)}
               </p>
             </div>
@@ -63,10 +71,10 @@ export default function GlobalWaitTimerBar() {
               type="button"
               disabled={endRunBusy}
               onClick={() => void endRun()}
-              className="shrink-0 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-900 hover:bg-zinc-50 disabled:opacity-55"
+              className="shrink-0 rounded-[0.9375rem] bg-zinc-900 px-[0.9375rem] py-2 text-[13px] font-semibold tracking-tight text-white shadow-inner transition hover:bg-zinc-800 disabled:opacity-55"
             >
               {endRunBusy ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-[1.0625rem] w-[1.0625rem] animate-spin" />
               ) : (
                 "종료"
               )}

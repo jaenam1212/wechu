@@ -31,26 +31,30 @@ const WaitTimerContext = createContext<Ctx | null>(null);
 
 export function WaitTimerProvider({ children }: { children: React.ReactNode }) {
   const [run, setRun] = useState<ActiveWaitRun | null>(null);
-  const [elapsedSec, setElapsedSec] = useState(0);
+  const [nowMs, setNowMs] = useState(() => Date.now());
   const [rewardBanner, setRewardBanner] = useState<string | null>(null);
   const [endRunBusy, setEndRunBusy] = useState(false);
 
   useEffect(() => {
-    if (!run) {
-      setElapsedSec(0);
-      return undefined;
-    }
-    const tick = () =>
-      setElapsedSec(
-        Math.max(0, Math.floor((Date.now() - run.startedAtMs) / 1000)),
-      );
-    tick();
+    if (!run) return undefined;
+    const tick = () => {
+      setNowMs(Date.now());
+    };
+    const t0 = window.setTimeout(tick, 0);
     const id = window.setInterval(tick, 500);
-    return () => window.clearInterval(id);
+    return () => {
+      window.clearTimeout(t0);
+      window.clearInterval(id);
+    };
   }, [run]);
 
+  const elapsedSec =
+    run === null
+      ? 0
+      : Math.max(0, Math.floor((nowMs - run.startedAtMs) / 1000));
+
   const beginRun = useCallback((r: ActiveWaitRun) => {
-    setRun(r);
+    setRun((prev) => prev ?? r);
     setRewardBanner(null);
   }, []);
 

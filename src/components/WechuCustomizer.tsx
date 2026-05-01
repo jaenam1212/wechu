@@ -5,7 +5,7 @@ import { wechuSpriteUrl } from "@/lib/wechu-sprites";
 import { Shirt } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 type Row = {
   item_key: string;
@@ -13,6 +13,28 @@ type Row = {
   slot: "hat" | "body" | "acc";
   cost: number;
 };
+
+function WechuPreviewSprite({ src }: { src: string }) {
+  const [broken, setBroken] = useState(false);
+  return !broken ? (
+    <Image
+      src={src}
+      alt="위츄 캐릭터"
+      width={176}
+      height={176}
+      className="max-h-[10.5rem] w-auto object-contain object-bottom"
+      unoptimized
+      onError={() => setBroken(true)}
+    />
+  ) : (
+    <>
+      <Shirt size={72} strokeWidth={1.25} className="text-violet-600" />
+      <span className="mt-3 text-center text-[11px] text-zinc-500">
+        이미지를 불러오지 못했어요
+      </span>
+    </>
+  );
+}
 
 export default function WechuCustomizer({
   items,
@@ -28,7 +50,6 @@ export default function WechuCustomizer({
   const router = useRouter();
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  const [spriteBroken, setSpriteBroken] = useState(false);
 
   const grouped = useMemo(() => {
     const g = { hat: [] as Row[], body: [] as Row[], acc: [] as Row[] };
@@ -75,10 +96,6 @@ export default function WechuCustomizer({
     [equipped.hat_key, equipped.body_key],
   );
 
-  useEffect(() => {
-    setSpriteBroken(false);
-  }, [spriteSrc]);
-
   return (
     <div className="space-y-8">
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
@@ -87,24 +104,7 @@ export default function WechuCustomizer({
         </h2>
         <div className="flex gap-6">
           <div className="relative flex h-48 w-44 flex-col items-center justify-center rounded-2xl bg-gradient-to-b from-violet-100 to-pink-100 px-2 pt-3 pb-2">
-            {!spriteBroken ? (
-              <Image
-                src={spriteSrc}
-                alt="위츄 캐릭터"
-                width={176}
-                height={176}
-                className="max-h-[10.5rem] w-auto object-contain object-bottom"
-                unoptimized
-                onError={() => setSpriteBroken(true)}
-              />
-            ) : (
-              <>
-                <Shirt size={72} strokeWidth={1.25} className="text-violet-600" />
-                <span className="mt-3 text-center text-[11px] text-zinc-500">
-                  이미지를 불러오지 못했어요
-                </span>
-              </>
-            )}
+            <WechuPreviewSprite key={spriteSrc} src={spriteSrc} />
           </div>
           <dl className="flex flex-1 flex-col justify-center gap-2 text-sm text-zinc-800">
             <div>
