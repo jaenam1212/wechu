@@ -1,6 +1,10 @@
-import { redirect } from "next/navigation";
+import HomeRadialClient from "@/components/home/HomeRadialClient";
+import { getWalletBalance } from "@/app/actions/shop";
 
-/** 홈 탭 없음 — 앱 시작 시 위츄가 기본 화면 */
-export default function HomePage() {
-  redirect("/wechu");
+export const dynamic = "force-dynamic";
+
+/** 메인 줄 타이머 (GPS 줄 시작 + 방사형 1시간 링 UI) */
+export default async function HomePage() {
+  const balance = await getWalletBalance();
+  return <HomeRadialClient initialBalance={balance} />;
 }

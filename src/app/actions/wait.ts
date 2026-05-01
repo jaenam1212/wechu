@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  MAX_GPS_VENUE_RADIUS_M,
   MAX_REWARD_PER_SESSION,
   MAX_SESSION_SECONDS,
   REWARD_SECONDS_PER_POINT,
@@ -65,17 +66,16 @@ export async function startWaitSession(form: unknown) {
       return { ok: false as const, message: "등록된 QR 장소가 아니에요." };
     }
 
-    /* 데모 전용 줄: 어디서든 사진 트리거만으로 테스트 (반경 검사 생략) */
-    const demoSlugBypass = venue.slug === "wechu-demo";
-    const skipGeo =
-      demoSlugBypass || process.env.SKIP_GEO_VALIDATION === "true";
+    /** 로컬/스테이징만. 운영에서는 비우거나 false 권장. */
+    const skipGeo = process.env.SKIP_GEO_VALIDATION === "true";
 
     if (!skipGeo) {
+      const allowedM = Math.min(venue.radius_m, MAX_GPS_VENUE_RADIUS_M);
       const d = distanceMeters({ lat, lng }, { lat: venue.lat, lng: venue.lng });
-      if (d > venue.radius_m) {
+      if (d > allowedM) {
         return {
           ok: false as const,
-          message: `장소 근처가 아니에요 (약 ${Math.round(d)}m, 허용 ${venue.radius_m}m).`,
+          message: `장소 근처가 아니에요 (약 ${Math.round(d)}m, 허용 약 ${Math.round(allowedM)}m).`,
         };
       }
     }
@@ -104,6 +104,57 @@ export async function startWaitSession(form: unknown) {
   } catch (e) {
     console.error(e);
     return { ok: false as const, message: "세션 시작에 실패했어요." };
+  }
+}
+
+/** GPS 좌표로 가장 가깝고 반경 안에 포함되는 등록 존 선택 */
+export async function resolveVenueFromGps(form: unknown) {
+  const schema = z.object({
+    lat: z.number().min(-90).max(90),
+    lng: z.number().min(-180).max(180),
+  });
+
+  try {
+    const { lat, lng } = schema.parse(form);
+    const sql = getSql();
+    const venues = neonRows<{
+      slug: string;
+      name: string;
+      lat: number;
+      lng: number;
+      radius_m: number;
+    }>(
+      await sql`
+        SELECT slug, name, lat, lng, radius_m
+        FROM venues
+        WHERE radius_m <= ${MAX_GPS_VENUE_RADIUS_M}
+      `,
+    );
+
+    const scored = venues
+      .map((v) => ({
+        ...v,
+        dist: distanceMeters({ lat, lng }, { lat: v.lat, lng: v.lng }),
+      }))
+      .sort((a, b) => a.dist - b.dist);
+
+    const hit = scored.find((v) => v.dist <= v.radius_m);
+
+    if (!hit) {
+      return {
+        ok: false as const,
+        message: "등록된 줄 존 근처가 아니에요.",
+      };
+    }
+
+    return {
+      ok: true as const,
+      slug: hit.slug,
+      name: hit.name,
+    };
+  } catch (e) {
+    console.error(e);
+    return { ok: false as const, message: "위치를 확인하지 못했어요." };
   }
 }
 

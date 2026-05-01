@@ -1,10 +1,5 @@
-import type { Metadata } from "next";
-import ScanGate from "./ScanGate";
-
-export const metadata: Metadata = {
-  title: "스캔",
-};
+import { redirect } from "next/navigation";
 
 export default function ScanPage() {
-  return <ScanGate />;
+  redirect("/");
 }

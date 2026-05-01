@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 브랜드 */
+  --wechu-main: #c1e5ff;
+  --wechu-sub: #fffeda;
+  --wechu-base: #fefcf8;
+  --background: var(--wechu-base);
+  --foreground: #1e293b;
   --app-column-max: 430px;
   --app-column-max-md: 640px;
 }
@@ -25,7 +29,7 @@ body {
     sans-serif;
   color: var(--foreground);
   min-height: 100dvh;
-  background: #e4e4e7;
+  background: color-mix(in srgb, var(--wechu-main) 14%, #e8eaef);
 }
 
 .app-column-w {
@@ -40,18 +44,18 @@ body {
 .app-canvas-inner {
   background:
     radial-gradient(
-      820px circle at 50% -20%,
-      rgba(255, 107, 168, 0.12),
-      transparent 55%
+      720px circle at 50% -15%,
+      color-mix(in srgb, var(--wechu-main) 35%, transparent),
+      transparent 52%
     ),
     radial-gradient(
-      620px circle at 100% 20%,
-      rgba(124, 92, 255, 0.08),
-      transparent 48%
+      520px circle at 100% 40%,
+      color-mix(in srgb, var(--wechu-sub) 45%, transparent),
+      transparent 46%
     ),
     var(--background);
 }
 
 ::selection {
-  background: rgba(236, 72, 153, 0.25);
+  background: color-mix(in srgb, var(--wechu-main) 45%, transparent);
 }

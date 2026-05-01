@@ -1,6 +1,6 @@
 "use server";
 
-import { requireUserId } from "@/lib/auth/session";
+import { getSessionUserId, requireUserId } from "@/lib/auth/session";
 import { getPool, getSql } from "@/lib/db/neon";
 import { neonRows } from "@/lib/db/rows";
 import { revalidatePath } from "next/cache";
@@ -120,5 +120,19 @@ export async function equipWechu(payload: unknown) {
     return { ok: true as const };
   } catch {
     return { ok: false as const, message: "장착에 실패했어요." };
+  }
+}
+
+export async function getWalletBalance(): Promise<number> {
+  try {
+    const uid = await getSessionUserId();
+    if (!uid) return 0;
+    const sql = getSql();
+    const [row] = neonRows<{ balance: string | number }>(
+      await sql`SELECT balance FROM wallets WHERE user_id = ${uid}::uuid`,
+    );
+    return Number(row?.balance ?? 0);
+  } catch {
+    return 0;
   }
 }

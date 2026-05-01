@@ -100,8 +100,9 @@ create trigger tr_users_bootstrap
 execute function public.bootstrap_user_row();
 
 insert into public.venues (slug, name, lat, lng, radius_m)
-values ('wechu-demo', 'Wechu 데모 라인', 37.5665, 126.9780, 500000),
-       ('hall-a', 'A홀 줄서기 존', 37.5796, 126.9769, 200)
+values ('wechu-demo', 'Wechu 데모 라인', 37.5665, 126.9780, 280),
+       ('hall-a', 'A홀 줄서기 존', 37.5796, 126.9769, 200),
+       ('line-custom-01', '커스텀 줄 존', 37.5461, 126.8791, 250)
 on conflict (slug) do nothing;
 
 insert into public.wechu_items (item_key, name, slot, cost) values
