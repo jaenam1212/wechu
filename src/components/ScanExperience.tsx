@@ -7,40 +7,20 @@ import { useCallback, useState } from "react";
 
 const CAMERA_INPUT_ID = "wechu-camera-only";
 
-/** 스키마 `neon/migrations` 의 데모 장소 (서버에서 이 슬러그는 지오 검증 생략) */
+/** 스키마 `neon/migrations` 의 데모 장소 — 서버에서 반경 검증 생략 */
 const TEMP_DEMO_SLUG = "wechu-demo";
 
-const SEOUL_DEMO = { lat: 37.5665, lng: 126.978 };
-
-function geoPosition(): Promise<{ lat: number; lng: number }> {
-  return new Promise((resolve, reject) => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      reject(new Error("no-geolocation"));
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (p) =>
-        resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
-      () => reject(new Error("geo-denied")),
-      { enableHighAccuracy: false, maximumAge: 60_000, timeout: 12_000 },
-    );
-  });
-}
-
-async function coordsForStubStart(): Promise<{ lat: number; lng: number }> {
-  try {
-    return await geoPosition();
-  } catch {
-    return SEOUL_DEMO;
-  }
-}
+/** 모바일에서 geolocation 이 응답 없이 걸리면 스피너만 도는 증상이 있어, 데모 플로우는 고정 좌표만 전달 */
+const STUB_COORDS = { lat: 37.5665, lng: 126.978 };
 
 export default function ScanExperience() {
   const { beginRun, run } = useWaitTimer();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const blocked = busy || !!run;
+  /** 라벨 이중 탭 방지 — 진행 중엔 라벨만 막고, 파일 input 은 busy 때도 비활성하지 않음(iOS 안정화) */
+  const labelBlocked = busy || !!run;
+  const inputDisabled = !!run;
 
   const bootFromPhotoStub = useCallback(async () => {
     if (run) return;
@@ -49,12 +29,10 @@ export default function ScanExperience() {
     setErr(null);
 
     try {
-      const pos = await coordsForStubStart();
-
       const res = await startWaitSession({
         venueSlug: TEMP_DEMO_SLUG,
-        lat: pos.lat,
-        lng: pos.lng,
+        lat: STUB_COORDS.lat,
+        lng: STUB_COORDS.lng,
       });
 
       if (!res.ok) {
@@ -79,9 +57,7 @@ export default function ScanExperience() {
       const input = e.target;
       if (!input.files?.length) return;
 
-      void (async () => {
-        await bootFromPhotoStub();
-      })().finally(() => {
+      void bootFromPhotoStub().finally(() => {
         input.value = "";
       });
     },
@@ -90,9 +66,6 @@ export default function ScanExperience() {
 
   return (
     <div className="flex w-full flex-col gap-6 px-4 py-6">
-      {/*
-        모바일 Safari: 프로그래매틱 input.click()이 막히는 경우가 있어 label htmlFor 로 직접 연결
-      */}
       <input
         id={CAMERA_INPUT_ID}
         type="file"
@@ -102,7 +75,7 @@ export default function ScanExperience() {
         className="sr-only"
         tabIndex={-1}
         aria-hidden
-        disabled={blocked}
+        disabled={inputDisabled}
         onChange={onFileChosen}
       />
 
@@ -111,8 +84,8 @@ export default function ScanExperience() {
           줄 서기 시작
         </h1>
         <p className="text-sm leading-relaxed text-zinc-600">
-          <strong className="font-medium text-zinc-800">카메라로 촬영</strong>하면 데모
-          줄이 시작돼요. 앨범 선택은 사용하지 않아요.
+          <strong className="font-medium text-zinc-800">카메라로 촬영</strong> 후 저장하면 줄
+          대기가 시작돼요. (데모: 위치 권한 없이 진행)
         </p>
       </header>
 
@@ -138,7 +111,7 @@ export default function ScanExperience() {
 
         <label
           htmlFor={CAMERA_INPUT_ID}
-          className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-pink-600 py-4 text-base font-semibold text-white shadow-md shadow-pink-600/25 transition hover:bg-pink-500 ${blocked ? "pointer-events-none opacity-55" : ""}`}
+          className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-pink-600 py-4 text-base font-semibold text-white shadow-md shadow-pink-600/25 transition hover:bg-pink-500 ${labelBlocked ? "pointer-events-none opacity-55" : ""}`}
         >
           {busy ? (
             <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
