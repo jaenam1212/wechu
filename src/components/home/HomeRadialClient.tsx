@@ -13,7 +13,7 @@ import {
   getWechuOverlayLayers,
   WECHU_BASE_SPRITE_SRC,
 } from "@/lib/wechu-items";
-import { BarChart3, Loader2, MapPin, Pause, ShoppingBag, Vote } from "lucide-react";
+import { BarChart3, Loader2, Pause, ShoppingBag, Star, Vote } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -142,7 +142,7 @@ export default function HomeRadialClient({
     >
       <div className="relative z-10 flex justify-center px-3 pt-[calc(env(safe-area-inset-top)+0.5rem)]">
         <div className="inline-flex items-center gap-2 rounded-full border border-sky-200/55 bg-[color-mix(in_srgb,var(--wechu-base)_82%,transparent)] px-3.5 py-2 text-base font-semibold shadow-md backdrop-blur-md">
-          <MapPin className="h-4 w-4 text-sky-800" aria-hidden />
+          <Star className="h-4 w-4 text-sky-800" aria-hidden />
           <span className="tabular-nums">{balance}</span>
         </div>
       </div>
