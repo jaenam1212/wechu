@@ -60,6 +60,12 @@ export function WaitTimerProvider({ children }: { children: React.ReactNode }) {
 
   const dismissReward = useCallback(() => setRewardBanner(null), []);
 
+  useEffect(() => {
+    if (!rewardBanner) return undefined;
+    const id = window.setTimeout(() => dismissReward(), 3000);
+    return () => window.clearTimeout(id);
+  }, [rewardBanner, dismissReward]);
+
   const endRun = useCallback(async () => {
     const sid = run?.sessionId;
     if (!sid) return;

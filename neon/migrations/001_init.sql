@@ -103,7 +103,9 @@ insert into public.venues (slug, name, lat, lng, radius_m)
 values ('wechu-demo', 'Wechu 데모 라인', 37.5665, 126.9780, 280),
        ('hall-a', 'A홀 줄서기 존', 37.5796, 126.9769, 200),
        ('line-custom-01', '커스텀 줄 존', 37.5461, 126.8791, 250),
-       ('line-seoul-5682', '종로·동대문 인근 줄 존', 37.5682, 126.9977, 420)
+       ('line-seoul-5682', '종로·동대문 인근 줄 존', 37.5682, 126.9977, 420),
+       ('line-seoul-5416', '서울 동부 줄 존 A', 37.541616, 127.078827, 500),
+       ('line-seoul-5398', '서울 동부 줄 존 B', 37.539857, 127.145226, 500)
 on conflict (slug) do nothing;
 
 insert into public.wechu_items (item_key, name, slot, cost) values

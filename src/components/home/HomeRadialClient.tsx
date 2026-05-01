@@ -52,7 +52,6 @@ export default function HomeRadialClient({
     endRun,
     endRunBusy,
     rewardBanner,
-    dismissReward,
   } = useWaitTimer();
   const [balance, setBalance] = useState(initialBalance);
   const [busyStart, setBusyStart] = useState(false);
@@ -68,6 +67,12 @@ export default function HomeRadialClient({
   useEffect(() => {
     void getWalletBalance().then(setBalance);
   }, [run, rewardBanner]);
+
+  useEffect(() => {
+    if (!hint) return undefined;
+    const id = window.setTimeout(() => setHint(null), 3500);
+    return () => window.clearTimeout(id);
+  }, [hint]);
 
   const onTapIdle = useCallback(async () => {
     if (run || busyStart) return;
@@ -147,36 +152,34 @@ export default function HomeRadialClient({
         </Link>
       </header>
 
-      {rewardBanner ? (
-        <div className="relative z-10 px-6">
-          <p className="mx-auto max-w-md rounded-2xl border border-sky-200/65 bg-[color-mix(in_srgb,var(--wechu-sub)_95%,white)] px-4 py-3 text-center text-[13px] font-medium leading-snug shadow-md backdrop-blur">
-            <span className="text-slate-900">{rewardBanner}</span>
+      {hint ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="app-column-w pointer-events-none fixed left-1/2 top-[calc(env(safe-area-inset-top)+0.625rem)] z-[55] flex w-full max-w-none -translate-x-1/2 justify-center px-3"
+        >
+          <p className="pointer-events-auto flex w-full max-w-[min(100%,22rem)] items-center justify-center gap-x-2 rounded-[1.125rem] border border-rose-200/80 bg-[color-mix(in_srgb,var(--wechu-base)_94%,white)] px-4 py-2.5 text-center text-[13px] font-medium leading-snug text-rose-900 shadow-xl shadow-slate-900/10 backdrop-blur-xl">
+            <span className="min-w-0 flex-1 text-balance">{hint}</span>
             <button
               type="button"
-              className="mt-3 block w-full text-center font-semibold text-sky-900 underline-offset-4 hover:underline"
-              onClick={() => dismissReward()}
+              className="shrink-0 whitespace-nowrap text-xs font-semibold text-rose-800 underline-offset-2 hover:underline"
+              onClick={() => setHint(null)}
             >
               닫기
             </button>
           </p>
         </div>
-      ) : hint ? (
-        <div className="relative z-10 px-6">
-          <p className="mx-auto max-w-md rounded-2xl border border-rose-200/65 bg-[var(--wechu-base)]/95 px-4 py-3 text-center text-[13px] font-medium leading-snug text-rose-900 shadow-md backdrop-blur">
-            {hint}
-          </p>
-        </div>
-      ) : (
-        <p className="relative z-10 px-8 pb-3 text-center text-sm text-slate-700">
-          {run
-            ? `${run.venueName} · 대기 중`
-            : fixedOverride
-              ? `고정 좌표: ${fixedOverride.label} — 원 탭 시 이 위치로 매칭`
-              : "등록 줄 존 근처에서 원을 탭해 GPS로 시작해 주세요."}
-        </p>
-      )}
+      ) : null}
 
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-[max(8rem,calc(env(safe-area-inset-bottom)+6rem))]">
+      <p className="relative z-10 px-8 pb-3 text-center text-sm text-slate-700">
+        {run
+          ? `${run.venueName} · 대기 중`
+          : fixedOverride
+            ? `고정 좌표: ${fixedOverride.label} — 원 탭 시 이 위치로 매칭`
+            : "등록된 장소 근처에서 원을 탭해 GPS로 시작해 주세요."}
+      </p>
+
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-[max(10.5rem,calc(env(safe-area-inset-bottom)+8rem))]">
         <div className="relative flex flex-col items-center">
           <button
             type="button"
@@ -243,42 +246,37 @@ export default function HomeRadialClient({
                   <p className="font-mono text-[2.125rem] font-bold tabular-nums tracking-tight text-sky-950 drop-shadow-sm">
                     {run ? fmtClock(elapsedSec) : "0:00"}
                   </p>
-                  {run ? (
-                    <p className="text-[11px] font-medium text-slate-600">
-                      링 1바퀴 약 {(RING_SECONDS / 60).toFixed(0)}분
-                    </p>
-                  ) : (
-                    <p className="mt-2 max-w-[9.5rem] text-xs leading-snug text-slate-700">
-                      {fixedOverride
-                        ? "탭 → 고정 좌표로 줄 존 매칭"
-                        : "탭 → GPS 확인 → 근처 줄 시작"}
-                    </p>
-                  )}
+                 
+                  
                 </>
               )}
             </div>
           </button>
 
-          {run ? (
-            <button
-              type="button"
-              aria-label="대기 종료"
-              disabled={endRunBusy}
-              onClick={() => void endRun()}
-              className="mt-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-200/60 bg-white/50 shadow-lg backdrop-blur-md transition hover:bg-white/65 disabled:opacity-50"
-            >
-              {endRunBusy ? (
-                <Loader2 className="h-6 w-6 animate-spin text-sky-900" />
-              ) : (
-                <Pause className="h-8 w-8 text-slate-900" aria-hidden strokeWidth={2.25} />
-              )}
-            </button>
-          ) : null}
+          <div className="mt-5 flex h-14 items-center justify-center">
+            {run ? (
+              <button
+                type="button"
+                aria-label="대기 종료"
+                disabled={endRunBusy}
+                onClick={() => void endRun()}
+                className="flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-200/60 bg-white/50 shadow-lg backdrop-blur-md transition hover:bg-white/65 disabled:opacity-50"
+              >
+                {endRunBusy ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-sky-900" />
+                ) : (
+                  <Pause className="h-8 w-8 text-slate-900" aria-hidden strokeWidth={2.25} />
+                )}
+              </button>
+            ) : (
+              <span className="h-14 w-14" aria-hidden />
+            )}
+          </div>
         </div>
       </div>
 
       {fixedPresets && fixedPresets.length > 0 ? (
-        <div className="pointer-events-auto absolute bottom-[calc(env(safe-area-inset-bottom)+7.5rem)] left-3 right-3 z-20 mx-auto max-w-md rounded-xl border border-amber-400/70 bg-amber-50/95 px-3 py-2 shadow-lg backdrop-blur-sm">
+        <div className="pointer-events-auto absolute bottom-[calc(env(safe-area-inset-bottom)+10.75rem)] left-3 right-3 z-20 mx-auto max-w-md rounded-xl border border-amber-400/70 bg-amber-50/95 px-3 py-2 shadow-lg backdrop-blur-sm">
           <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-amber-900">
             고정 좌표 (config/geo-presets.ts) · {fixedPresets.length}곳
           </p>
@@ -306,18 +304,22 @@ export default function HomeRadialClient({
 
       <div className="pointer-events-none absolute bottom-[max(1.5rem,calc(env(safe-area-inset-bottom)+1rem))] left-0 right-0 z-10 flex justify-center px-8">
         <div className="pointer-events-none flex flex-col items-center gap-3">
-          <div className="flex h-[4.75rem] w-[5.25rem] items-end justify-center overflow-hidden rounded-[2rem] border border-sky-200/55 bg-[color-mix(in_srgb,var(--wechu-base)_58%,transparent)] shadow-xl backdrop-blur-md">
-            <Image
-              src={encodeURI("/wechu/기본 위츄.png")}
-              alt=""
-              width={88}
-              height={88}
-              className="object-contain object-bottom drop-shadow-lg"
-              unoptimized
-            />
+          <div className="flex min-h-[9.75rem] w-[9rem] flex-col justify-end overflow-visible rounded-[2rem] border border-sky-200/55 bg-[color-mix(in_srgb,var(--wechu-base)_58%,transparent)] px-3 pb-2 pt-5 shadow-xl backdrop-blur-md">
+            <div className="flex w-full flex-1 items-end justify-center [min-height:7.5rem]">
+              <Image
+                src={encodeURI("/wechu/기본 위츄.png")}
+                alt=""
+                width={512}
+                height={512}
+                sizes="200px"
+                quality={93}
+                draggable={false}
+                className="h-[7.5rem] w-auto max-w-[8.75rem] object-contain object-bottom drop-shadow-lg [image-rendering:auto]"
+              />
+            </div>
           </div>
           <Sparkles
-            className="h-7 w-7 drop-shadow-md"
+            className="h-8 w-8 drop-shadow-md"
             aria-hidden
             style={{ color: "#c49a3dff" }}
           />
