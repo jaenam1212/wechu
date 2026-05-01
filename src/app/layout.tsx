@@ -1,3 +1,4 @@
+import AppProviders from "@/components/AppProviders";
 import BottomNav from "@/components/BottomNav";
 import DbUserBootstrap from "@/components/DbUserBootstrap";
 import type { Metadata, Viewport } from "next";
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Wechu",
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
   },
   formatDetection: {
     telephone: false,
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ff4f8f",
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -52,12 +53,14 @@ export default function RootLayout({
       <body className="min-h-dvh antialiased">
         <div className="flex min-h-dvh justify-center">
           <div
-            className="app-column-w app-canvas-inner relative flex min-h-dvh w-full flex-col border-x border-white/8 pb-[calc(4.75rem+env(safe-area-inset-bottom))] shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_0_80px_rgba(0,0,0,0.55)]"
+            className="app-column-w app-canvas-inner relative flex min-h-dvh w-full flex-col border-x border-zinc-200 bg-white pb-[calc(4.75rem+env(safe-area-inset-bottom))] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_0_1px_rgba(0,0,0,0.06),0_12px_40px_rgba(0,0,0,0.06)]"
             id="wechu-app-shell"
           >
-            <DbUserBootstrap>
-              <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-            </DbUserBootstrap>
+            <AppProviders>
+              <DbUserBootstrap>
+                <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+              </DbUserBootstrap>
+            </AppProviders>
           </div>
         </div>
         <BottomNav />

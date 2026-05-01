@@ -68,11 +68,13 @@ export default async function WechuPage() {
   if (!process.env.DATABASE_URL?.trim()) {
     return (
       <main className="flex w-full flex-col gap-4 px-5 py-10">
-        <h1 className="text-xl font-semibold text-white">환경 변수 필요</h1>
-        <p className="text-sm leading-relaxed text-zinc-400">
+        <h1 className="text-xl font-semibold text-zinc-900">환경 변수 필요</h1>
+        <p className="text-sm leading-relaxed text-zinc-600">
           `.env.local`에 Neon 연결 문자열 `DATABASE_URL`을 넣어 주세요.
           Neon 콘솔에서{' '}
-          <code className="text-pink-200">neon/migrations/001_init.sql</code>{' '}
+          <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-sm text-pink-700">
+            neon/migrations/001_init.sql
+          </code>{' '}
           을 실행해 스키마를 만드세요.
         </p>
       </main>
@@ -83,7 +85,7 @@ export default async function WechuPage() {
   if (!uid) {
     return (
       <main className="flex w-full flex-col gap-4 px-5 py-10">
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-zinc-600">
           세션 준비 중입니다. 새로고침 해 주세요.
         </p>
       </main>
@@ -97,7 +99,7 @@ export default async function WechuPage() {
   } catch {
     return (
       <main className="flex w-full flex-col gap-4 px-5 py-10">
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-zinc-600">
           DB 연결 또는 스키마를 확인해 주세요. `DATABASE_URL`과 마이그레이션
           SQL 실행 여부를 봐 주세요.
         </p>
@@ -108,8 +110,8 @@ export default async function WechuPage() {
   return (
     <main className="flex w-full flex-col gap-6 px-5 py-8">
       <header>
-        <h1 className="text-2xl font-bold text-white">위츄</h1>
-        <p className="mt-2 text-sm text-zinc-400">
+        <h1 className="text-2xl font-bold text-zinc-900">위츄</h1>
+        <p className="mt-2 text-sm text-zinc-600">
           줄 선 시간으로 받은 리워드(RP)로 코디템을 사고 장착해요.
         </p>
       </header>

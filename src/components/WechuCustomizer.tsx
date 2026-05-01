@@ -1,9 +1,11 @@
 "use client";
 
 import { buyWechuItem, equipWechu } from "@/app/actions/shop";
+import { wechuSpriteUrl } from "@/lib/wechu-sprites";
 import { Shirt } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Row = {
   item_key: string;
@@ -26,6 +28,7 @@ export default function WechuCustomizer({
   const router = useRouter();
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [spriteBroken, setSpriteBroken] = useState(false);
 
   const grouped = useMemo(() => {
     const g = { hat: [] as Row[], body: [] as Row[], acc: [] as Row[] };
@@ -67,18 +70,43 @@ export default function WechuCustomizer({
 
   const equipped = avatar;
 
+  const spriteSrc = useMemo(
+    () => wechuSpriteUrl(equipped.hat_key, equipped.body_key),
+    [equipped.hat_key, equipped.body_key],
+  );
+
+  useEffect(() => {
+    setSpriteBroken(false);
+  }, [spriteSrc]);
+
   return (
     <div className="space-y-8">
-      <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
+      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <h2 className="mb-2 text-xs uppercase tracking-widest text-zinc-500">
           프리뷰
         </h2>
         <div className="flex gap-6">
-          <div className="flex h-44 w-40 flex-col items-center justify-center rounded-2xl bg-gradient-to-b from-white/15 to-purple-900/40">
-            <Shirt size={72} strokeWidth={1.25} className="text-white/85" />
-            <span className="mt-4 text-[11px] text-zinc-400">표시용 간단 픽토</span>
+          <div className="relative flex h-48 w-44 flex-col items-center justify-center rounded-2xl bg-gradient-to-b from-violet-100 to-pink-100 px-2 pt-3 pb-2">
+            {!spriteBroken ? (
+              <Image
+                src={spriteSrc}
+                alt="위츄 캐릭터"
+                width={176}
+                height={176}
+                className="max-h-[10.5rem] w-auto object-contain object-bottom"
+                unoptimized
+                onError={() => setSpriteBroken(true)}
+              />
+            ) : (
+              <>
+                <Shirt size={72} strokeWidth={1.25} className="text-violet-600" />
+                <span className="mt-3 text-center text-[11px] text-zinc-500">
+                  이미지를 불러오지 못했어요
+                </span>
+              </>
+            )}
           </div>
-          <dl className="flex flex-1 flex-col justify-center gap-2 text-sm text-zinc-300">
+          <dl className="flex flex-1 flex-col justify-center gap-2 text-sm text-zinc-800">
             <div>
               <dt className="text-xs text-zinc-500">모자</dt>
               <dd>{items.find((i) => i.item_key === equipped.hat_key)?.name}</dd>
@@ -99,14 +127,14 @@ export default function WechuCustomizer({
       </section>
 
       {err ? (
-        <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+        <p className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-800">
           {err}
         </p>
       ) : null}
 
       {(["hat", "body", "acc"] as const).map((slot) => (
         <section key={slot} className="space-y-3">
-          <h2 className="text-sm font-semibold text-white">{titles[slot]}</h2>
+          <h2 className="text-sm font-semibold text-zinc-900">{titles[slot]}</h2>
           <div className="grid gap-2">
             {grouped[slot].map((item) => {
               const owns = ownedKeys.has(item.item_key);
@@ -121,9 +149,9 @@ export default function WechuCustomizer({
               return (
                 <div
                   key={item.item_key}
-                  className="flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-black/25 px-3 py-2"
+                  className="flex flex-wrap items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2"
                 >
-                  <span className="flex-1 text-sm text-white">{item.name}</span>
+                  <span className="flex-1 text-sm text-zinc-900">{item.name}</span>
                   <span className="text-xs text-zinc-500">
                     {item.cost === 0 ? "기본" : `${item.cost} RP`}
                   </span>
@@ -132,7 +160,7 @@ export default function WechuCustomizer({
                       type="button"
                       disabled={isBusy || equipKey === item.item_key}
                       onClick={() => void equip(slot, item.item_key)}
-                      className="rounded-lg bg-purple-600/70 px-3 py-1 text-xs font-medium text-white hover:bg-purple-500 disabled:opacity-45"
+                      className="rounded-lg bg-violet-600 px-3 py-1 text-xs font-medium text-white hover:bg-violet-500 disabled:opacity-45"
                     >
                       {equipKey === item.item_key ? "착용 중" : "착용"}
                     </button>
@@ -141,7 +169,7 @@ export default function WechuCustomizer({
                       type="button"
                       disabled={isBusy || balance < item.cost}
                       onClick={() => void buy(item.item_key)}
-                      className="rounded-lg bg-pink-600/80 px-3 py-1 text-xs font-medium text-white hover:bg-pink-500 disabled:opacity-45"
+                      className="rounded-lg bg-pink-600 px-3 py-1 text-xs font-medium text-white hover:bg-pink-500 disabled:opacity-45"
                     >
                       구매
                     </button>

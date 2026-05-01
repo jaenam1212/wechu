@@ -1,7 +1,9 @@
 import { ensureUserRow, getSessionUserId } from "@/lib/auth/session";
+import { wechuSpriteUrl } from "@/lib/wechu-sprites";
 import { getSql } from "@/lib/db/neon";
 import { neonRows } from "@/lib/db/rows";
 import type { Metadata } from "next";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "리캡",
@@ -26,7 +28,7 @@ export default async function RecapPage() {
   if (!process.env.DATABASE_URL?.trim()) {
     return (
       <main className="flex w-full flex-col px-5 py-10">
-        <p className="text-sm text-zinc-400">`DATABASE_URL`이 없습니다.</p>
+        <p className="text-sm text-zinc-600">`DATABASE_URL`이 없습니다.</p>
       </main>
     );
   }
@@ -35,7 +37,7 @@ export default async function RecapPage() {
   if (!uid) {
     return (
       <main className="flex w-full flex-col px-5 py-10">
-        <p className="text-sm text-zinc-400">세션 불러오는 중…</p>
+        <p className="text-sm text-zinc-600">세션 불러오는 중…</p>
       </main>
     );
   }
@@ -98,7 +100,7 @@ export default async function RecapPage() {
   } catch {
     return (
       <main className="flex w-full flex-col px-5 py-10">
-        <p className="text-sm text-zinc-400">데이터를 불러오지 못했어요.</p>
+        <p className="text-sm text-zinc-600">데이터를 불러오지 못했어요.</p>
       </main>
     );
   }
@@ -131,62 +133,79 @@ export default async function RecapPage() {
     faveSlug ??
     "아직 데이터 없음";
 
+  const recapSprite = wechuSpriteUrl(
+    displayAvatar.hat_key,
+    displayAvatar.body_key,
+  );
+
   return (
     <main className="flex w-full flex-col gap-6 px-5 py-10">
       <header>
-        <h1 className="text-2xl font-bold text-white">팬대기 리캡</h1>
-        <p className="mt-2 text-sm text-zinc-400">
+        <h1 className="text-2xl font-bold text-zinc-900">팬대기 리캡</h1>
+        <p className="mt-2 text-sm text-zinc-600">
           총 대기 시간과 위츄, 투표 요약이에요.
         </p>
       </header>
 
-      <section className="grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-5">
+      <section className="grid gap-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <h2 className="text-xs uppercase tracking-[0.2em] text-zinc-500">숫자</h2>
         <dl className="grid gap-4 text-sm">
           <div className="flex justify-between gap-4">
-            <dt className="text-zinc-400">총 대기</dt>
-            <dd className="font-semibold text-white">{fmtHm(totalSec)}</dd>
+            <dt className="text-zinc-600">총 대기</dt>
+            <dd className="font-semibold text-zinc-900">{fmtHm(totalSec)}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-zinc-400">가장 오래 줄 선 곳</dt>
-            <dd className="text-right font-medium text-white">{venueName}</dd>
+            <dt className="text-zinc-600">가장 오래 줄 선 곳</dt>
+            <dd className="text-right font-medium text-zinc-900">{venueName}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-zinc-400">현재 리워드</dt>
-            <dd className="font-semibold text-pink-200">{walletBal} RP</dd>
+            <dt className="text-zinc-600">현재 리워드</dt>
+            <dd className="font-semibold text-pink-700">{walletBal} RP</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-zinc-400">투표 참여 횟수</dt>
-            <dd className="font-semibold text-white">{votesCount}회</dd>
+            <dt className="text-zinc-600">투표 참여 횟수</dt>
+            <dd className="font-semibold text-zinc-900">{votesCount}회</dd>
           </div>
         </dl>
       </section>
 
-      <section className="space-y-2 rounded-2xl border border-white/10 bg-black/35 p-5">
+      <section className="space-y-4 rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
         <h2 className="text-xs uppercase tracking-[0.2em] text-zinc-500">
           내 위츄 코디
         </h2>
-        <ul className="space-y-2 text-sm text-white">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+          <div className="mx-auto flex h-40 w-36 shrink-0 items-end justify-center rounded-2xl bg-gradient-to-b from-violet-100 to-pink-100 sm:mx-0">
+            <Image
+              src={recapSprite}
+              alt="위츄 캐릭터"
+              width={144}
+              height={144}
+              className="max-h-36 w-auto object-contain object-bottom"
+              unoptimized
+            />
+          </div>
+          <ul className="min-w-0 flex-1 space-y-2 text-sm text-zinc-900">
           <li>
             모자 ·{" "}
-            <span className="text-zinc-300">
+            <span className="text-zinc-700">
               {itemName.get(displayAvatar.hat_key) ?? displayAvatar.hat_key}
             </span>
           </li>
           <li>
             옷 ·{" "}
-            <span className="text-zinc-300">
+            <span className="text-zinc-700">
               {itemName.get(displayAvatar.body_key) ?? displayAvatar.body_key}
             </span>
           </li>
           <li>
             참 ·{" "}
-            <span className="text-zinc-300">
+            <span className="text-zinc-700">
               {itemName.get(displayAvatar.acc_key) ?? displayAvatar.acc_key}
             </span>
           </li>
-        </ul>
-        <p className="mt-4 text-xs text-zinc-500">
+          </ul>
+        </div>
+        <p className="text-xs text-zinc-500">
           코디 칸당 보유 가능한 아이템 {ownedLen}종
         </p>
       </section>

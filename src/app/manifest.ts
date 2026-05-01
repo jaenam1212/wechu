@@ -2,15 +2,15 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    id: "/",
+    id: "/wechu",
     name: "Wechu · 팬대기 타이머",
     short_name: "Wechu",
     description: "QR로 줄 시작 · 리워드 · 위츄 꾸미기 · 헤메코 투표",
-    start_url: "/",
+    start_url: "/wechu",
     scope: "/",
     display: "standalone",
-    background_color: "#101018",
-    theme_color: "#ff4f8f",
+    background_color: "#ffffff",
+    theme_color: "#ffffff",
     orientation: "portrait-primary",
     lang: "ko",
     icons: [

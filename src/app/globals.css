@@ -1,9 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0c0c14;
-  --foreground: #f4f4f7;
-  /* 모바일 전용 쉘: 큰 화면에서도 중앙 폭만 사용 (태블릿 상한) */
+  --background: #ffffff;
+  --foreground: #171717;
   --app-column-max: 430px;
   --app-column-max-md: 640px;
 }
@@ -14,7 +13,7 @@
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
   overflow-x: hidden;
 }
 
@@ -26,11 +25,9 @@ body {
     sans-serif;
   color: var(--foreground);
   min-height: 100dvh;
-  /* 좌우 레일: 캔버스 밖은 더 어둡게 */
-  background: #04040a;
+  background: #e4e4e7;
 }
 
-/* 중앙 컬럼용: fixed 요소가 뷰포트 기준이라 calc로 캔버스와 동일 폭 유지 */
 .app-column-w {
   width: min(100vw, var(--app-column-max));
 }
@@ -42,11 +39,19 @@ body {
 
 .app-canvas-inner {
   background:
-    radial-gradient(900px circle at 50% -15%, #332040 0%, transparent 52%),
-    radial-gradient(700px circle at 100% 25%, #1c1c3a 0%, transparent 45%),
+    radial-gradient(
+      820px circle at 50% -20%,
+      rgba(255, 107, 168, 0.12),
+      transparent 55%
+    ),
+    radial-gradient(
+      620px circle at 100% 20%,
+      rgba(124, 92, 255, 0.08),
+      transparent 48%
+    ),
     var(--background);
 }
 
 ::selection {
-  background: #ff4f8f55;
+  background: rgba(236, 72, 153, 0.25);
 }

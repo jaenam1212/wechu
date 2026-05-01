@@ -35,13 +35,13 @@ export default function VotePanel({ rows, balance }: { rows: Row[]; balance: num
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-zinc-400">
-        한 표당 <span className="text-white">{VOTE_COST}</span> 리워드입니다. (보유{" "}
-        {balance})
+      <p className="text-sm text-zinc-600">
+        한 표당 <span className="font-semibold text-zinc-900">{VOTE_COST}</span>{" "}
+        리워드입니다. (보유 {balance})
       </p>
 
       {err ? (
-        <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+        <p className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-800">
           {err}
         </p>
       ) : null}
@@ -57,16 +57,16 @@ export default function VotePanel({ rows, balance }: { rows: Row[]; balance: num
               key={o.id}
               onClick={() => void vote(o.id)}
               disabled={loading || balance < VOTE_COST}
-              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-sky-400/40 hover:bg-white/10 disabled:opacity-45"
+              className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-sky-300 hover:bg-sky-50/50 disabled:opacity-45"
             >
               <div
                 aria-hidden
-                className="absolute inset-y-0 left-0 bg-sky-500/15 transition-all"
+                className="absolute inset-y-0 left-0 bg-sky-200/60 transition-all"
                 style={{ width: `${pct}%` }}
               />
               <div className="relative flex items-center justify-between gap-4">
-                <span className="font-medium text-white">{o.label}</span>
-                <span className="text-sm tabular-nums text-zinc-400">
+                <span className="font-medium text-zinc-900">{o.label}</span>
+                <span className="text-sm tabular-nums text-zinc-600">
                   {o.count}표
                   {loading ? (
                     <Loader2 className="ml-2 inline h-4 w-4 animate-spin" />
