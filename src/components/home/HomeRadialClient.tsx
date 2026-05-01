@@ -8,6 +8,7 @@ import { getWalletBalance } from "@/app/actions/shop";
 import { useWaitTimer } from "@/components/wait/WaitTimerContext";
 import { fmtClock } from "@/lib/fmt-clock";
 import { getGeoFixedPresets } from "@/config/geo-presets";
+import { getBrowserGeoCoordinates } from "@/lib/geo-client";
 import { Loader2, MapPin, Pause, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,7 +19,7 @@ const CIR = 2 * Math.PI * R;
 /** 링 한 바퀴 = 약 1시간 */
 const RING_SECONDS = 3600;
 
-function geoOnce(
+async function geoOnce(
   fixedOverride: Readonly<{ lat: number; lng: number }> | null,
 ): Promise<{ lat: number; lng: number }> {
   if (fixedOverride) {
@@ -27,36 +28,16 @@ function geoOnce(
       ...loc,
       source: "고정 좌표(config/geo-presets)",
     });
-    return Promise.resolve(loc);
+    return loc;
   }
-  return new Promise((resolve, reject) => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      reject(new Error("위치를 쓸 수 없어요."));
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        const lat = p.coords.latitude;
-        const lng = p.coords.longitude;
-        console.log("[wechu] 내 위치", {
-          lat,
-          lng,
-          source: "브라우저 GPS",
-          accuracy_m: p.coords.accuracy ?? null,
-          altitude_m: p.coords.altitude ?? null,
-          heading: p.coords.heading ?? null,
-          speed_mps: p.coords.speed ?? null,
-        });
-        resolve({ lat, lng });
-      },
-      () => reject(new Error("위치 권한이 필요합니다.")),
-      {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        timeout: 14_000,
-      },
-    );
+  const g = await getBrowserGeoCoordinates();
+  console.log("[wechu] 내 위치", {
+    lat: g.lat,
+    lng: g.lng,
+    source: "브라우저 GPS",
+    accuracy_m: g.accuracy_m,
   });
+  return { lat: g.lat, lng: g.lng };
 }
 
 export default function HomeRadialClient({
@@ -92,10 +73,16 @@ export default function HomeRadialClient({
     if (run || busyStart) return;
     setBusyStart(true);
     setHint(null);
+    if (!fixedOverride) {
+      setHint(
+        "위치 허용 창이 뜨면 「허용」을 눌러 주세요. 카카오톡·인스타 안쪽 브라우저에서는 창이 안 뜨거나 막히는 경우가 많아요. Safari·Chrome으로 열어 보세요.",
+      );
+    }
     try {
       const loc = await geoOnce(fixedOverride);
       const pick = await resolveVenueFromGps(loc);
       if (!pick.ok) {
+        console.warn("[wechu] 줄 존 매칭 실패", pick.message, loc);
         setHint(pick.message);
         return;
       }
@@ -105,9 +92,14 @@ export default function HomeRadialClient({
         lng: loc.lng,
       });
       if (!res.ok) {
+        console.warn("[wechu] 세션 시작 거절", res.message, {
+          venueSlug: pick.slug,
+          loc,
+        });
         setHint(res.message);
         return;
       }
+      setHint(null);
       beginRun({
         sessionId: res.sessionId,
         venueName: res.venueName,
