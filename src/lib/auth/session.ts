@@ -7,6 +7,7 @@ import {
 } from "@/lib/auth/constants";
 import { getSql } from "@/lib/db/neon";
 import { cookies, headers } from "next/headers";
+import { cache } from "react";
 
 export { WECHU_UID_COOKIE, WECHU_UID_HEADER, isUuid } from "@/lib/auth/constants";
 
@@ -19,14 +20,15 @@ export async function getSessionUserId(): Promise<string | null> {
   return null;
 }
 
-export async function ensureUserRow(userId: string) {
+/** 같은 RSC 요청 안에서 레이아웃·페이지 중복 호출을 한 번만 DB로 접게 함 */
+export const ensureUserRow = cache(async (userId: string) => {
   const sql = getSql();
   await sql`
     INSERT INTO users (id)
     VALUES (${userId}::uuid)
     ON CONFLICT (id) DO NOTHING
   `;
-}
+});
 
 export async function requireUserId(): Promise<string> {
   const id = await getSessionUserId();

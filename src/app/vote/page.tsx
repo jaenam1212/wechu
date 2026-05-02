@@ -1,5 +1,5 @@
 import VotePanel from "@/components/VotePanel";
-import { ensureUserRow, getSessionUserId } from "@/lib/auth/session";
+import { getSessionUserId } from "@/lib/auth/session";
 import { getSql } from "@/lib/db/neon";
 import { neonRows } from "@/lib/db/rows";
 import { getPollBoard } from "@/lib/vote-totals";
@@ -34,7 +34,6 @@ export default async function VotePage() {
   let rows: Awaited<ReturnType<typeof getPollBoard>>;
   let balance = 0;
   try {
-    await ensureUserRow(uid);
     const sql = getSql();
     rows = await getPollBoard();
 

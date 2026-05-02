@@ -1,5 +1,5 @@
 import WechuCustomizer from "@/components/WechuCustomizer";
-import { ensureUserRow, getSessionUserId } from "@/lib/auth/session";
+import { getSessionUserId } from "@/lib/auth/session";
 import { getSql } from "@/lib/db/neon";
 import { neonRows } from "@/lib/db/rows";
 import type { Metadata } from "next";
@@ -94,7 +94,6 @@ export default async function WechuPage() {
 
   let board: Awaited<ReturnType<typeof fetchWechuBoard>>;
   try {
-    await ensureUserRow(uid);
     board = await fetchWechuBoard(uid);
   } catch {
     return (

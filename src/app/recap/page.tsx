@@ -1,4 +1,4 @@
-import { ensureUserRow, getSessionUserId } from "@/lib/auth/session";
+import { getSessionUserId } from "@/lib/auth/session";
 import { wechuSpriteUrl } from "@/lib/wechu-sprites";
 import { getSql } from "@/lib/db/neon";
 import { neonRows } from "@/lib/db/rows";
@@ -55,7 +55,6 @@ export default async function RecapPage() {
   let venues: { slug: string; name: string }[] = [];
 
   try {
-    await ensureUserRow(uid);
     const sql = getSql();
 
     const [sess, voteAgg, wal, av, it, ow, vn] = await Promise.all([
