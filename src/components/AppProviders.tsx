@@ -1,5 +1,6 @@
 "use client";
 
+import GeoVisitBeacon from "@/components/GeoVisitBeacon";
 import GlobalWaitTimerBar from "@/components/wait/GlobalWaitTimerBar";
 import { WaitTimerProvider } from "@/components/wait/WaitTimerContext";
 import { WaitTimerReservePadding } from "@/components/wait/WaitTimerReservePadding";
@@ -13,6 +14,7 @@ export default function AppProviders({
   return (
     <WaitTimerProvider>
       <WaitTimerSessionHydrator />
+      <GeoVisitBeacon />
       <WaitTimerReservePadding />
       <GlobalWaitTimerBar />
       {children}

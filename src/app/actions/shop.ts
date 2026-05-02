@@ -1,5 +1,6 @@
 "use server";
 
+import { appendAppEvent } from "@/lib/app-events";
 import { getSessionUserId, requireUserId } from "@/lib/auth/session";
 import { getPool, getSql } from "@/lib/db/neon";
 import { neonRows } from "@/lib/db/rows";
@@ -59,6 +60,7 @@ export async function buyWechuItem(itemKeyRaw: unknown) {
     );
 
     await client.query("COMMIT");
+    void appendAppEvent("shop_buy", userId, { itemKey });
     revalidatePath("/wechu");
     revalidatePath("/recap");
     revalidatePath("/");
@@ -116,6 +118,7 @@ export async function equipWechu(payload: unknown) {
       `;
     }
 
+    void appendAppEvent("equip", userId, { slot, itemKey });
     revalidatePath("/wechu");
     revalidatePath("/recap");
     revalidatePath("/");

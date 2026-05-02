@@ -1,5 +1,6 @@
 "use server";
 
+import { appendAppEvent } from "@/lib/app-events";
 import { VOTE_COST } from "@/lib/constants";
 import { requireUserId } from "@/lib/auth/session";
 import { getPool } from "@/lib/db/neon";
@@ -50,6 +51,7 @@ export async function castOutfitVote(optionIdRaw: unknown) {
     );
 
     await client.query("COMMIT");
+    void appendAppEvent("vote", userId, { optionId, rewardSpent: VOTE_COST });
     revalidatePath("/vote");
     revalidatePath("/recap");
     return { ok: true as const };

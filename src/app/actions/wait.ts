@@ -6,6 +6,7 @@ import {
   MAX_SESSION_SECONDS,
   REWARD_SECONDS_PER_POINT,
 } from "@/lib/constants";
+import { appendAppEvent } from "@/lib/app-events";
 import { distanceMeters } from "@/lib/geo";
 import { requireUserId } from "@/lib/auth/session";
 import { getPool, getSql } from "@/lib/db/neon";
@@ -94,6 +95,8 @@ export async function startWaitSession(form: unknown) {
     }
 
     const startedAtIso = new Date(row.started_at).toISOString();
+
+    void appendAppEvent("wait_start", userId, { venueSlug: venue.slug });
 
     return {
       ok: true as const,
@@ -263,6 +266,11 @@ export async function endWaitSession(sessionIdRaw: unknown) {
     );
 
     await client.query("COMMIT");
+    void appendAppEvent("wait_complete", userId, {
+      sessionId,
+      durationSec: ds,
+      rewardPoints: rw,
+    });
     revalidatePath("/recap");
 
     return {
