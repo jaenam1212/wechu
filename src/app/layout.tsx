@@ -1,5 +1,6 @@
 import AppProviders from "@/components/AppProviders";
 import DbUserBootstrap from "@/components/DbUserBootstrap";
+import RouteScrollArea from "@/components/navigation/RouteScrollArea";
 import SubpageTopBar from "@/components/navigation/SubpageTopBar";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -59,9 +60,7 @@ export default function RootLayout({
             <AppProviders>
               <DbUserBootstrap>
                 <SubpageTopBar />
-                <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch]">
-                  {children}
-                </div>
+                <RouteScrollArea>{children}</RouteScrollArea>
               </DbUserBootstrap>
             </AppProviders>
           </div>

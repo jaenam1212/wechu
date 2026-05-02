@@ -13,7 +13,7 @@ import {
   getWechuOverlayLayers,
   WECHU_BASE_SPRITE_SRC,
 } from "@/lib/wechu-items";
-import { BarChart3, Loader2, Pause, ShoppingBag, Star, Vote } from "lucide-react";
+import { BarChart3, Loader2, ShoppingBag, Star, Vote } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -132,6 +132,15 @@ export default function HomeRadialClient({
     }
   }, [beginRun, busyStart, fixedOverride, run]);
 
+  const onTapRing = useCallback(() => {
+    if (busyStart) return;
+    if (run) {
+      if (!endRunBusy) void endRun();
+      return;
+    }
+    void onTapIdle();
+  }, [busyStart, endRun, endRunBusy, onTapIdle, run]);
+
   return (
     <div
       className="relative flex min-h-0 flex-1 w-full flex-col overflow-hidden overscroll-none text-slate-900 [-webkit-overflow-scrolling:touch]"
@@ -148,13 +157,13 @@ export default function HomeRadialClient({
       </div>
       <p className="relative z-10 px-8 pt-[calc(env(safe-area-inset-top)+0.625rem)] pb-2 text-center text-sm text-slate-700">
         {run
-          ? `${run.venueName} · 대기 중`
+          ? `${run.venueName} · 대기 중 — 원을 다시 탭하면 종료`
           : fixedOverride
             ? `고정 좌표: ${fixedOverride.label} — 원 탭 시 이 위치로 매칭`
             : "등록된 장소 근처에서 원을 탭해 GPS로 시작해 주세요."}
       </p>
 
-      <header className="relative z-10 mt-[50px] flex px-4 pb-2">
+      <header className="relative z-10 mt-6 flex shrink-0 px-4 pb-2 sm:mt-10">
         <div className="flex w-14 flex-col items-center gap-2">
           <Link
             href="/wechu"
@@ -200,18 +209,18 @@ export default function HomeRadialClient({
         </div>
       ) : null}
 
-      <div className="relative z-10 flex flex-1 min-h-0 -translate-y-2 flex-col items-center justify-center px-6 pb-[max(8rem,calc(env(safe-area-inset-bottom)+6rem))]">
-        <div className="relative flex flex-col items-center">
+      <div className="relative z-10 flex flex-1 min-h-0 -translate-y-1 flex-col items-center justify-center px-6 pb-[max(7rem,calc(env(safe-area-inset-bottom)+5.25rem))]">
+        <div className="relative flex max-h-full min-h-0 flex-col items-center justify-center">
           <button
             type="button"
             aria-label={
               run
-                ? `대기 시간 ${fmtClock(elapsedSec)}`
+                ? `대기 시간 ${fmtClock(elapsedSec)}, 다시 탭하면 종료`
                 : "GPS로 줄 줄 시작하기"
             }
             disabled={busyStart || endRunBusy}
-            onClick={() => void (!run ? onTapIdle() : undefined)}
-            className={`relative flex h-[296px] w-[296px] flex-col items-center justify-center rounded-full outline-none ring-offset-2 ring-offset-transparent transition focus-visible:ring-4 focus-visible:ring-[#c1e5ff]/90 ${run || busyStart ? "" : "active:scale-[0.985]"}`}
+            onClick={onTapRing}
+            className={`relative flex h-[296px] w-[296px] shrink-0 flex-col items-center justify-center rounded-full outline-none ring-offset-2 ring-offset-transparent transition focus-visible:ring-4 focus-visible:ring-[#c1e5ff]/90 ${busyStart ? "" : "active:scale-[0.985]"}`}
           >
             <svg
               className="-rotate-90"
@@ -274,25 +283,11 @@ export default function HomeRadialClient({
             </div>
           </button>
 
-          <div className="mt-4 flex h-14 items-center justify-center">
-            {run ? (
-              <button
-                type="button"
-                aria-label="대기 종료"
-                disabled={endRunBusy}
-                onClick={() => void endRun()}
-                className="flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-200/60 bg-white/50 shadow-lg backdrop-blur-md transition hover:bg-white/65 disabled:opacity-50"
-              >
-                {endRunBusy ? (
-                  <Loader2 className="h-6 w-6 animate-spin text-sky-900" />
-                ) : (
-                  <Pause className="h-8 w-8 text-slate-900" aria-hidden strokeWidth={2.25} />
-                )}
-              </button>
-            ) : (
-              <span className="h-14 w-14" aria-hidden />
-            )}
-          </div>
+          {endRunBusy ? (
+            <div className="mt-3 flex h-8 items-center justify-center" aria-hidden>
+              <Loader2 className="h-7 w-7 animate-spin text-sky-800" />
+            </div>
+          ) : null}
         </div>
       </div>
 
