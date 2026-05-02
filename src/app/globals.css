@@ -18,6 +18,7 @@
 
 html {
   color-scheme: light;
+  height: 100%;
   overflow-x: hidden;
 }
 
@@ -28,7 +29,8 @@ body {
     -apple-system,
     sans-serif;
   color: var(--foreground);
-  min-height: 100dvh;
+  height: 100%;
+  overscroll-behavior: none;
   background: color-mix(in srgb, var(--wechu-main) 14%, #e8eaef);
 }
 

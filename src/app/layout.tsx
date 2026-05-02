@@ -50,16 +50,18 @@ export default function RootLayout({
       lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full`}
     >
-      <body className="min-h-dvh antialiased">
-        <div className="flex min-h-dvh justify-center">
+      <body className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden overscroll-none antialiased">
+        <div className="flex min-h-0 flex-1 justify-center overflow-hidden">
           <div
-            className="app-column-w app-canvas-inner relative flex min-h-dvh w-full flex-col border-x border-sky-200/45 bg-[var(--wechu-base)] pb-[env(safe-area-inset-bottom)] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_0_1px_rgba(30,41,59,0.06),0_12px_40px_rgba(30,41,59,0.05)]"
+            className="app-column-w app-canvas-inner relative flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden border-x border-sky-200/45 bg-[var(--wechu-base)] pb-[env(safe-area-inset-bottom)] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_0_1px_rgba(30,41,59,0.06),0_12px_40px_rgba(30,41,59,0.05)]"
             id="wechu-app-shell"
           >
             <AppProviders>
               <DbUserBootstrap>
                 <SubpageTopBar />
-                <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+                <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch]">
+                  {children}
+                </div>
               </DbUserBootstrap>
             </AppProviders>
           </div>

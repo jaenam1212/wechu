@@ -26,7 +26,7 @@ export default function SubpageTopBar() {
     "Wechu";
 
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-sky-200/35 bg-[color-mix(in_srgb,var(--wechu-base)_96%,transparent)] px-4 py-3 pb-3 pt-[calc(env(safe-area-inset-top)+0.5rem)] backdrop-blur-md">
+    <header className="sticky top-0 z-30 flex shrink-0 items-center gap-3 border-b border-sky-200/35 bg-[color-mix(in_srgb,var(--wechu-base)_96%,transparent)] px-4 py-3 pb-3 pt-[calc(env(safe-area-inset-top)+0.5rem)] backdrop-blur-md">
       <Link
         href="/"
         className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-200/40 bg-[var(--wechu-main)] text-lg font-semibold text-sky-900 transition hover:brightness-[0.97]"

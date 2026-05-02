@@ -134,7 +134,7 @@ export default function HomeRadialClient({
 
   return (
     <div
-      className="relative flex min-h-[100dvh] w-full flex-col overflow-hidden text-slate-900"
+      className="relative flex min-h-0 flex-1 w-full flex-col overflow-hidden overscroll-none text-slate-900 [-webkit-overflow-scrolling:touch]"
       style={{
         background:
           "linear-gradient(180deg, var(--wechu-sub) 0%, #e3f0fd 42%, var(--wechu-main) 100%)",
@@ -200,7 +200,7 @@ export default function HomeRadialClient({
         </div>
       ) : null}
 
-      <div className="relative z-10 flex flex-1 -translate-y-2 flex-col items-center justify-center px-6 pb-[max(10.5rem,calc(env(safe-area-inset-bottom)+8rem))]">
+      <div className="relative z-10 flex flex-1 min-h-0 -translate-y-2 flex-col items-center justify-center px-6 pb-[max(8rem,calc(env(safe-area-inset-bottom)+6rem))]">
         <div className="relative flex flex-col items-center">
           <button
             type="button"
