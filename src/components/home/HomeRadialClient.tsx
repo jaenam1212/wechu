@@ -13,10 +13,24 @@ import {
   getWechuOverlayLayers,
   WECHU_BASE_SPRITE_SRC,
 } from "@/lib/wechu-items";
-import { BarChart3, Loader2, ShoppingBag, Star, Vote } from "lucide-react";
+import {
+  BarChart3,
+  Loader2,
+  Play,
+  ShoppingBag,
+  Square,
+  Star,
+  Vote,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type MouseEvent,
+} from "react";
 
 const R = 118;
 const CIR = 2 * Math.PI * R;
@@ -141,12 +155,32 @@ export default function HomeRadialClient({
     void onTapIdle();
   }, [busyStart, endRun, endRunBusy, onTapIdle, run]);
 
+  const onTogglePlayStop = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      if (endRunBusy || busyStart) return;
+      if (!run) {
+        void onTapIdle();
+        return;
+      }
+      void endRun();
+    },
+    [busyStart, endRun, endRunBusy, onTapIdle, run],
+  );
+
+  const toggleDisabled = endRunBusy || busyStart;
+
   return (
     <div
       className="relative flex min-h-0 flex-1 w-full flex-col overflow-hidden overscroll-none text-slate-900 [-webkit-overflow-scrolling:touch]"
       style={{
-        background:
-          "linear-gradient(180deg, var(--wechu-sub) 0%, #e3f0fd 42%, var(--wechu-main) 100%)",
+        backgroundImage: [
+          "linear-gradient(180deg, color-mix(in srgb, var(--wechu-sub) 58%, transparent) 0%, color-mix(in srgb, #e3f0fd 52%, transparent) 42%, color-mix(in srgb, var(--wechu-main) 55%, transparent) 100%)",
+          "url(/img/main-bg.jpg)",
+        ].join(", "),
+        backgroundSize: "cover, cover",
+        backgroundPosition: "center, center bottom",
+        backgroundRepeat: "no-repeat",
       }}
     >
       <div className="relative z-10 flex justify-center px-3 pt-[calc(env(safe-area-inset-top)+0.5rem)]">
@@ -209,18 +243,26 @@ export default function HomeRadialClient({
         </div>
       ) : null}
 
-      <div className="relative z-10 flex flex-1 min-h-0 -translate-y-1 flex-col items-center justify-center px-6 pb-[max(7rem,calc(env(safe-area-inset-bottom)+5.25rem))]">
-        <div className="relative flex max-h-full min-h-0 flex-col items-center justify-center">
-          <button
-            type="button"
+      <div className="relative z-10 flex flex-1 min-h-0 -translate-y-12 flex-col items-center justify-center px-6 pb-[max(7rem,calc(env(safe-area-inset-bottom)+5.25rem))]">
+        <div className="relative h-[296px] w-[296px] shrink-0">
+          <div
+            role="button"
+            tabIndex={toggleDisabled ? -1 : 0}
+            aria-disabled={toggleDisabled}
             aria-label={
               run
                 ? `대기 시간 ${fmtClock(elapsedSec)}, 다시 탭하면 종료`
                 : "GPS로 줄 줄 시작하기"
             }
-            disabled={busyStart || endRunBusy}
             onClick={onTapRing}
-            className={`relative flex h-[296px] w-[296px] shrink-0 flex-col items-center justify-center rounded-full outline-none ring-offset-2 ring-offset-transparent transition focus-visible:ring-4 focus-visible:ring-[#c1e5ff]/90 ${busyStart ? "" : "active:scale-[0.985]"}`}
+            onKeyDown={(e) => {
+              if (toggleDisabled) return;
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onTapRing();
+              }
+            }}
+            className={`relative flex h-full w-full flex-col items-center justify-center rounded-full outline-none ring-offset-2 ring-offset-transparent transition focus-visible:ring-4 focus-visible:ring-[#c1e5ff]/90 ${toggleDisabled ? "cursor-not-allowed opacity-90" : "cursor-pointer active:scale-[0.985]"}`}
           >
             <svg
               className="-rotate-90"
@@ -268,26 +310,38 @@ export default function HomeRadialClient({
 
             <div className="pointer-events-none absolute inset-[22%] rounded-full border-[3px] border-white/65 bg-[color-mix(in_srgb,var(--wechu-base)_55%,transparent)] shadow-inner backdrop-blur-sm" />
 
-            <div className="absolute flex flex-col items-center gap-1 text-center">
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-4 text-center">
               {busyStart ? (
                 <Loader2 className="h-10 w-10 animate-spin text-sky-800" aria-hidden />
               ) : (
                 <>
-                  <p className="font-mono text-[2.125rem] font-bold tabular-nums tracking-tight text-sky-950 drop-shadow-sm">
+                  <p className="pointer-events-none font-mono text-[2.125rem] font-bold tabular-nums tracking-tight text-sky-950 drop-shadow-sm">
                     {run ? fmtClock(elapsedSec) : "0:00"}
                   </p>
-                 
-                  
+                  {endRunBusy ? (
+                    <Loader2
+                      className="pointer-events-none h-7 w-7 shrink-0 animate-spin text-sky-800"
+                      aria-hidden
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      className="pointer-events-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-sky-300/70 bg-[color-mix(in_srgb,var(--wechu-base)_92%,transparent)] text-sky-950 shadow-md backdrop-blur-sm transition hover:border-sky-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-45"
+                      aria-label={run ? "정지 · 대기 종료" : "재생 · 줄 시작"}
+                      disabled={toggleDisabled}
+                      onClick={onTogglePlayStop}
+                    >
+                      {run ? (
+                        <Square className="h-3.5 w-3.5 fill-current" aria-hidden strokeWidth={0} />
+                      ) : (
+                        <Play className="h-4 w-4" aria-hidden strokeWidth={2.2} />
+                      )}
+                    </button>
+                  )}
                 </>
               )}
             </div>
-          </button>
-
-          {endRunBusy ? (
-            <div className="mt-3 flex h-8 items-center justify-center" aria-hidden>
-              <Loader2 className="h-7 w-7 animate-spin text-sky-800" />
-            </div>
-          ) : null}
+          </div>
         </div>
       </div>
 
@@ -320,31 +374,31 @@ export default function HomeRadialClient({
 
       <div className="pointer-events-none absolute bottom-[max(3rem,calc(env(safe-area-inset-bottom)+2rem))] left-0 right-0 z-10 flex justify-center px-8">
         <div className="pointer-events-none flex flex-col items-center gap-3">
-          <div className="flex min-h-[9.75rem] w-[9rem] flex-col justify-center overflow-visible rounded-[2rem] border border-sky-200/55 bg-[color-mix(in_srgb,var(--wechu-base)_58%,transparent)] px-3 py-3 shadow-xl backdrop-blur-md">
-            <div className="flex w-full flex-1 items-center justify-center [min-height:7.5rem]">
-              <div className="relative h-[7.5rem] w-[7.5rem]">
+          <div className="flex min-h-78 w-72 flex-col justify-center overflow-visible rounded-[4rem] border border-sky-200/20 bg-transparent px-6 py-6 shadow-none">
+            <div className="flex min-h-60 w-full flex-1 items-center justify-center">
+              <div className="relative h-60 w-60">
                 <Image
                   src={WECHU_BASE_SPRITE_SRC}
                   alt=""
                   fill
-                  sizes="120px"
+                  sizes="240px"
                   quality={93}
                   draggable={false}
                   className="object-contain object-center drop-shadow-lg [image-rendering:auto]"
                 />
                 {layers.topSrc ? (
-                  <div className="pointer-events-none absolute left-[60%] top-[18%] h-[1.8rem] w-[1.8rem] -translate-x-1/2 rotate-45">
-                    <Image src={layers.topSrc} alt="" fill sizes="29px" className="object-contain" />
+                  <div className="pointer-events-none absolute left-[60%] top-[18%] h-[3.6rem] w-[3.6rem] -translate-x-1/2 rotate-45">
+                    <Image src={layers.topSrc} alt="" fill sizes="58px" className="object-contain" />
                   </div>
                 ) : null}
                 {layers.midSrc ? (
-                  <div className="pointer-events-none absolute left-1/2 top-[64%] h-[1.9rem] w-[1.9rem] -translate-x-1/2 -translate-y-1/2">
-                    <Image src={layers.midSrc} alt="" fill sizes="31px" className="object-contain" />
+                  <div className="pointer-events-none absolute left-1/2 top-[64%] h-[3.8rem] w-[3.8rem] -translate-x-1/2 -translate-y-1/2">
+                    <Image src={layers.midSrc} alt="" fill sizes="62px" className="object-contain" />
                   </div>
                 ) : null}
                 {layers.bottomSrc ? (
-                  <div className="pointer-events-none absolute bottom-[12%] left-1/2 h-[1.9rem] w-[1.9rem] -translate-x-1/2">
-                    <Image src={layers.bottomSrc} alt="" fill sizes="31px" className="object-contain" />
+                  <div className="pointer-events-none absolute bottom-[12%] left-1/2 h-[3.8rem] w-[3.8rem] -translate-x-1/2">
+                    <Image src={layers.bottomSrc} alt="" fill sizes="62px" className="object-contain" />
                   </div>
                 ) : null}
               </div>

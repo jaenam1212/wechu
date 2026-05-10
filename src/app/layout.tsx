@@ -3,13 +3,8 @@ import DbUserBootstrap from "@/components/DbUserBootstrap";
 import RouteScrollArea from "@/components/navigation/RouteScrollArea";
 import SubpageTopBar from "@/components/navigation/SubpageTopBar";
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -47,10 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ko"
-      className={`${geistSans.variable} ${geistMono.variable} h-full`}
-    >
+    <html lang="ko" className={`${geistMono.variable} h-full`}>
       <body className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden overscroll-none antialiased">
         <div className="flex min-h-0 flex-1 justify-center overflow-hidden">
           <div

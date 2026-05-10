@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const titles: Record<string, string> = {
-  "/wechu": "위츄",
+  "/wechu": "상점",
   "/vote": "투표",
   "/recap": "리캡",
   "/scan": "스캔",

@@ -5,7 +5,7 @@ import { neonRows } from "@/lib/db/rows";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "위츄",
+  title: "상점 · 위츄",
 };
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ async function fetchWechuBoard(userId: string) {
 
   const [items, owned, avatarRows, walletRows] = await Promise.all([
     sql`
-      SELECT item_key, name, slot, cost
+      SELECT item_key, name, slot, cost, description
       FROM wechu_items
       ORDER BY slot ASC, cost ASC
     `,
@@ -51,6 +51,7 @@ async function fetchWechuBoard(userId: string) {
       name: string;
       slot: "hat" | "body" | "acc";
       cost: number;
+      description: string;
     }>(items),
     ownedKeys,
     balance: Number(w?.balance ?? 0),
@@ -107,14 +108,7 @@ export default async function WechuPage() {
   }
 
   return (
-    <main className="flex w-full flex-col gap-6 px-5 py-8">
-      <header>
-        <h1 className="text-2xl font-bold text-zinc-900">위츄</h1>
-        <p className="mt-2 text-sm text-zinc-600">
-          줄 선 시간으로 받은 리워드(RP)로 코디템을 사고 장착해요.
-        </p>
-      </header>
-
+    <main className="flex w-full flex-col px-4 pb-10 pt-2">
       <WechuCustomizer
         items={board.items}
         ownedKeys={board.ownedKeys}
