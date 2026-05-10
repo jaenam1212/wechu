@@ -387,7 +387,7 @@ export default function HomeRadialClient({
         </div>
       ) : null}
 
-      <div className="pointer-events-none absolute bottom-12 left-0 right-0 z-10 flex justify-center px-8">
+      <div className="pointer-events-none absolute bottom-12 left-0 right-0 z-10 flex translate-y-[clamp(1rem,min(50px,6vh),52px)] justify-center px-8">
         <div className="pointer-events-none flex flex-col items-center gap-3">
           <div className="flex min-h-78 w-72 flex-col justify-center overflow-visible rounded-[4rem] border-0 bg-transparent px-6 py-6 shadow-none">
             <div className="flex min-h-60 w-full flex-1 items-center justify-center">
