@@ -397,7 +397,7 @@ export default function HomeRadialClient({
                   alt=""
                   fill
                   sizes={HOME_CHAR_BASE_SIZES}
-                  quality={90}
+                  unoptimized
                   draggable={false}
                   className="object-contain object-center drop-shadow-lg"
                 />
@@ -408,7 +408,7 @@ export default function HomeRadialClient({
                       alt=""
                       fill
                       sizes={HOME_CHAR_OVERLAY_TOP_SIZES}
-                      quality={90}
+                      unoptimized
                       className="object-contain object-center"
                     />
                   </div>
@@ -420,7 +420,7 @@ export default function HomeRadialClient({
                       alt=""
                       fill
                       sizes={HOME_CHAR_OVERLAY_SLOT_SIZES}
-                      quality={90}
+                      unoptimized
                       className="object-contain object-center"
                     />
                   </div>
@@ -432,7 +432,7 @@ export default function HomeRadialClient({
                       alt=""
                       fill
                       sizes={HOME_CHAR_OVERLAY_SLOT_SIZES}
-                      quality={90}
+                      unoptimized
                       className="object-contain object-center"
                     />
                   </div>
