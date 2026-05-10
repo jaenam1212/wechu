@@ -37,6 +37,21 @@ const CIR = 2 * Math.PI * R;
 /** 링 한 바퀴 = 약 1시간 */
 const RING_SECONDS = 3600;
 
+/** 하단 캐릭터 박스 Tailwind `w-60`/`h-60` (= 15rem → 240px @16px rem) */
+const HOME_CHAR_PANEL_PX = 240;
+/** `h-[3.6rem]` / `w-[3.6rem]` 오버레이 (≈58px) */
+const HOME_CHAR_OVERLAY_TOP_PX = Math.round(3.6 * 16);
+/** `h-[3.8rem]` / `w-[3.8rem]` 오버레이 (≈61px) */
+const HOME_CHAR_OVERLAY_SLOT_PX = Math.round(3.8 * 16);
+
+/**
+ * next/image `sizes`: 앱 칼럼 최대 430px(md 전)·640px(md) 기준, 표시 CSS px에 맞춤.
+ * (`unoptimized`일 때도 레이아웃·추후 최적화 재활성 시 동일 기준)
+ */
+const HOME_CHAR_BASE_SIZES = `(max-width: 430px) ${HOME_CHAR_PANEL_PX}px, (max-width: 768px) ${HOME_CHAR_PANEL_PX}px, ${HOME_CHAR_PANEL_PX}px`;
+const HOME_CHAR_OVERLAY_TOP_SIZES = `(max-width: 768px) ${HOME_CHAR_OVERLAY_TOP_PX}px, ${HOME_CHAR_OVERLAY_TOP_PX}px`;
+const HOME_CHAR_OVERLAY_SLOT_SIZES = `(max-width: 768px) ${HOME_CHAR_OVERLAY_SLOT_PX}px, ${HOME_CHAR_OVERLAY_SLOT_PX}px`;
+
 async function geoOnce(
   fixedOverride: Readonly<{ lat: number; lng: number }> | null,
 ): Promise<{ lat: number; lng: number }> {
@@ -381,8 +396,8 @@ export default function HomeRadialClient({
                   src={WECHU_BASE_SPRITE_SRC}
                   alt=""
                   fill
-                  sizes="480px"
-                  unoptimized
+                  sizes={HOME_CHAR_BASE_SIZES}
+                  quality={90}
                   draggable={false}
                   className="object-contain object-center drop-shadow-lg"
                 />
@@ -392,8 +407,8 @@ export default function HomeRadialClient({
                       src={layers.topSrc}
                       alt=""
                       fill
-                      sizes="120px"
-                      unoptimized
+                      sizes={HOME_CHAR_OVERLAY_TOP_SIZES}
+                      quality={90}
                       className="object-contain object-center"
                     />
                   </div>
@@ -404,8 +419,8 @@ export default function HomeRadialClient({
                       src={layers.midSrc}
                       alt=""
                       fill
-                      sizes="128px"
-                      unoptimized
+                      sizes={HOME_CHAR_OVERLAY_SLOT_SIZES}
+                      quality={90}
                       className="object-contain object-center"
                     />
                   </div>
@@ -416,8 +431,8 @@ export default function HomeRadialClient({
                       src={layers.bottomSrc}
                       alt=""
                       fill
-                      sizes="128px"
-                      unoptimized
+                      sizes={HOME_CHAR_OVERLAY_SLOT_SIZES}
+                      quality={90}
                       className="object-contain object-center"
                     />
                   </div>
