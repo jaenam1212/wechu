@@ -381,24 +381,45 @@ export default function HomeRadialClient({
                   src={WECHU_BASE_SPRITE_SRC}
                   alt=""
                   fill
-                  sizes="240px"
-                  quality={93}
+                  sizes="480px"
+                  unoptimized
                   draggable={false}
-                  className="object-contain object-center drop-shadow-lg [image-rendering:auto]"
+                  className="object-contain object-center drop-shadow-lg"
                 />
                 {layers.topSrc ? (
-                  <div className="pointer-events-none absolute left-[60%] top-[18%] h-[3.6rem] w-[3.6rem] -translate-x-1/2 rotate-45">
-                    <Image src={layers.topSrc} alt="" fill sizes="58px" className="object-contain" />
+                  <div className="pointer-events-none absolute left-[60%] top-[18%] h-[3.6rem] w-[3.6rem] -translate-x-1/2 rotate-35">
+                    <Image
+                      src={layers.topSrc}
+                      alt=""
+                      fill
+                      sizes="120px"
+                      unoptimized
+                      className="object-contain object-center"
+                    />
                   </div>
                 ) : null}
                 {layers.midSrc ? (
                   <div className="pointer-events-none absolute left-1/2 top-[64%] h-[3.8rem] w-[3.8rem] -translate-x-1/2 -translate-y-1/2">
-                    <Image src={layers.midSrc} alt="" fill sizes="62px" className="object-contain" />
+                    <Image
+                      src={layers.midSrc}
+                      alt=""
+                      fill
+                      sizes="128px"
+                      unoptimized
+                      className="object-contain object-center"
+                    />
                   </div>
                 ) : null}
                 {layers.bottomSrc ? (
                   <div className="pointer-events-none absolute bottom-[12%] left-1/2 h-[3.8rem] w-[3.8rem] -translate-x-1/2">
-                    <Image src={layers.bottomSrc} alt="" fill sizes="62px" className="object-contain" />
+                    <Image
+                      src={layers.bottomSrc}
+                      alt=""
+                      fill
+                      sizes="128px"
+                      unoptimized
+                      className="object-contain object-center"
+                    />
                   </div>
                 ) : null}
               </div>
