@@ -387,9 +387,9 @@ export default function HomeRadialClient({
         </div>
       ) : null}
 
-      <div className="pointer-events-none absolute bottom-[max(3rem,calc(env(safe-area-inset-bottom)+2rem))] left-0 right-0 z-10 flex justify-center px-8">
+      <div className="pointer-events-none absolute bottom-12 left-0 right-0 z-10 flex justify-center px-8">
         <div className="pointer-events-none flex flex-col items-center gap-3">
-          <div className="flex min-h-78 w-72 flex-col justify-center overflow-visible rounded-[4rem] border border-sky-200/20 bg-transparent px-6 py-6 shadow-none">
+          <div className="flex min-h-78 w-72 flex-col justify-center overflow-visible rounded-[4rem] border-0 bg-transparent px-6 py-6 shadow-none">
             <div className="flex min-h-60 w-full flex-1 items-center justify-center">
               <div className="relative h-60 w-60">
                 <Image
@@ -397,7 +397,6 @@ export default function HomeRadialClient({
                   alt=""
                   fill
                   sizes={HOME_CHAR_BASE_SIZES}
-                  unoptimized
                   draggable={false}
                   className="object-contain object-center drop-shadow-lg"
                 />
@@ -408,7 +407,7 @@ export default function HomeRadialClient({
                       alt=""
                       fill
                       sizes={HOME_CHAR_OVERLAY_TOP_SIZES}
-                      unoptimized
+                      draggable={false}
                       className="object-contain object-center"
                     />
                   </div>
@@ -420,7 +419,7 @@ export default function HomeRadialClient({
                       alt=""
                       fill
                       sizes={HOME_CHAR_OVERLAY_SLOT_SIZES}
-                      unoptimized
+                      draggable={false}
                       className="object-contain object-center"
                     />
                   </div>
@@ -432,7 +431,7 @@ export default function HomeRadialClient({
                       alt=""
                       fill
                       sizes={HOME_CHAR_OVERLAY_SLOT_SIZES}
-                      unoptimized
+                      draggable={false}
                       className="object-contain object-center"
                     />
                   </div>
